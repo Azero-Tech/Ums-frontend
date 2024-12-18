@@ -7,7 +7,12 @@ const Table = ({ headers, data, customStyles = {}, actions,student}) => {
         className={`min-w-full table-auto divide-y divide-gray-600 ${customStyles.table}`}
       >
         <thead>
-          <tr>
+          <tr> 
+            {/* <th
+                className={`px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider ${customStyles.header}`}
+              >
+                S.No
+              </th> */}
             {headers.map((header, index) => ( 
               <th
                 key={index}
@@ -39,6 +44,11 @@ const Table = ({ headers, data, customStyles = {}, actions,student}) => {
                 key={rowIndex}
                 className={`${rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
               >
+                {/* <td 
+                    className={`px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm ${customStyles.cell}`}
+                  >
+                    {rowIndex+1}
+                  </td> */}
                 {Object.values(row).map((cell, cellIndex) => (
                   <td
                     key={cellIndex}

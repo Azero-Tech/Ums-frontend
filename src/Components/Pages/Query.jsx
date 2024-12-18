@@ -6,15 +6,15 @@ import Table from "../UI/Table";
 const Product_Data = [
     {
         id: 1,
-        name: "John Doe",
-        email: "john.doe@example.com",
-        contactNo: "123-456-7890",
-        message: "Need more info on product",
+        name: "Anuj kumar",
+        email: "anujk30@test.com",
+        contactNo: "1425362514",
+        message: "This is for testing purposes. This is for testing purposes.This is for testing purposes.This is for testing purposes.This is for testing purposes.This is for testing purposes.This is for testing purposes.This is for testing purposes.This is for testing purposes.",
         queryDate: "2024-12-01",
     },
     {
         id: 2,
-        name: "Jane Smith",
+        name: "Anuj kumar",
         email: "jane.smith@example.com",
         contactNo: "234-567-8901",
         message: "Interested in bulk purchase",

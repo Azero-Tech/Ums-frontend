@@ -6,27 +6,32 @@ import Table from "../UI/Table";
 const Product_Data = [
     {
         id: 1,
-        fullName: "John Doe",
-        address: "123 Street",
-        city: "New York",
+        fullName: "jayant vyas",
+        address: "SINGH POL KI GHATI",
+        city: "JODHPUR",
         gender: "Male",
-        email: "john.doe@example.com",
+        email: "jayantvyas07@gmail.com",
+        mobile:"933980809"
+
     },
     {
         id: 2,
-        fullName: "Jane Smith",
-        address: "456 Avenue",
-        city: "Los Angeles",
-        gender: "Female",
-        email: "jane.smith@example.com",
+        fullName: "Aayushi Vyas	",
+        address: "Greenfield 3 F -303 Vasna - Bhayli Main Rd, near Waves Club & Bright Day School, Bhayli, Vadodara, Gujarat",
+        city: "Vadodara",
+        gender: "Male",
+        email: "Aayushijoshi908@gmail.com",
+        mobile:"894028173"
+
     },
     {
         id: 3,
-        fullName: "Alice Brown",
-        address: "789 Boulevard",
-        city: "Chicago",
-        gender: "Female",
-        email: "alice.brown@example.com",
+        fullName: "Nitin Parmar",
+        address: "104,rajat mansion	",
+        city: "MUMBAI",
+        gender: "Male",
+        email: "nitinprmr4@gmail.com",
+        mobile:"894028173"
     },
 ];
 
@@ -37,11 +42,13 @@ const User = () => {
     const [isAddModalOpen, setAddModalOpen] = useState(false);
     const [editProduct, setEditProduct] = useState(null);
     const [newProduct, setNewProduct] = useState({
+        id:"",
         fullName: "",
         address: "",
         city: "",
         gender: "",
         email: "",
+        mobile:""
     });
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
@@ -77,7 +84,7 @@ const User = () => {
             filteredProducts.length > 0
                 ? Math.max(...filteredProducts.map((product) => product.id)) + 1
                 : 1;
-        const productToAdd = { ...newProduct, id: newId };
+        const productToAdd = {id: newId, ...newProduct };
         setFilteredProducts([productToAdd, ...filteredProducts]);
         setAddModalOpen(false);
         setNewProduct({
@@ -110,6 +117,7 @@ const User = () => {
         "City",
         "Gender",
         "Email",
+        "mobile"
     ];
 
     const actions = (row) => (

@@ -5,7 +5,7 @@ import Table from "../UI/Table";
 import { useNavigate } from "react-router-dom";
 
 const initialData = [
-    { id: 1, name: "John Doe", branch: "Delhi" },
+    { id: 1, name: "Saint Xavier	", branch: "Delhi" },
     { id: 2, name: "Jane Smith", branch: "Vadodara" },
 ];
 
