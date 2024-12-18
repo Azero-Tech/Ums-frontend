@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 const Header = () => {
   return (
-    <header className="w-[90%] mt-3 mx-auto bg-white shadow-md rounded-sm">
+    <header className="w-[95%] mt-3 mx-auto bg-white shadow-md rounded-sm">
       <div className="flex items-center justify-between p-3"> {/* Reduced padding */}
         {/* Left side: Logo */}
         {/* <img src={logo} alt="Logo" className="h-8 object-contain" /> Reduced logo height */}

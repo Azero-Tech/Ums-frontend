@@ -142,18 +142,17 @@ const ProductTable = () => {
             <h1 className='text-2xl font-semibold mb-4 underline tracking-wider'>Add New Product</h1>
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <div className='flex flex-col space-y-1'>
-                    <label className='text-sm'>Client Type</label>
-                    <select
-                        value={newProduct.client}   
-                        onChange={(e) => setNewProduct({ ...newProduct, client: e.target.value })}
-                        className='w-full px-4 py-2 border rounded-md'
-                    >
-                        <option value=''>Select Client Type</option>
-                        <option value='School'>School</option>
-                        <option value='College'>College</option>
-                    </select>
-                </div>
+            <div className='flex flex-col space-y-1'>
+    <label className='text-sm'>Client Type</label>
+    <input
+        type="text"
+        value={newProduct.client}
+        onChange={(e) => setNewProduct({ ...newProduct, client: e.target.value })}
+        placeholder="Enter Client Type"
+        className='w-full px-4 py-2 border rounded-md'
+    />
+</div>
+
 
                 <div className='flex flex-col space-y-1'>
                     <label className='text-sm'>Remark</label>
