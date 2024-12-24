@@ -43,5 +43,30 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+     
+    function ({ addUtilities }) {
+      const newUtilities = {
+        ".scrollbar-thin": {
+          scrollbarWidth: "thin",
+          scrollbarColor: "#F66803", // Set the scrollbar color and track color
+        },
+        ".scrollbar-custom": {
+          "&::-webkit-scrollbar": {
+            width: "7px", // Set width of the scrollbar
+            right: "5px", // Move the scrollbar 5px to the right
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "#F66803", // Set the background color for the scrollbar track
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "orange", // Set the background color for the scrollbar handle
+            borderRadius: "5px", // Round the corners of the scrollbar handle
+            border: "none",  
+          },
+        },
+      };
+      addUtilities(newUtilities, ["responsive", "hover"]);
+    },
+  ],
 }

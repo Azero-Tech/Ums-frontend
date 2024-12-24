@@ -1,6 +1,6 @@
 import React from "react";
 
-const Table = ({ headers, data, customStyles = {}, actions,student}) => {
+const Table = ({ headers, data, customStyles = {}, actions,student,mapping}) => {
   return (
     <div className="overflow-x-auto">
       <table
@@ -35,6 +35,13 @@ const Table = ({ headers, data, customStyles = {}, actions,student}) => {
                  Student
               </th>
             )}
+             {mapping && (
+              <th
+                className={`px-4 py-3 text-left text-xs sm:text-sm font-medium`}
+              >
+                 Mapping
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -65,6 +72,11 @@ const Table = ({ headers, data, customStyles = {}, actions,student}) => {
                  {student && (
                   <td className="px-4 py-2 text-gray-700 border-b">
                     {student(row)}
+                  </td>
+                )}
+                   {mapping && (
+                  <td className="px-4 py-2 text-gray-700 border-b">
+                    {mapping(row)}
                   </td>
                 )}
               </tr>

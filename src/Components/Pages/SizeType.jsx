@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Edit, Search, Trash2, ChevronLeft, ChevronRight, X } from "lucide-react";
 import Table from "../UI/Table";
 import { Upload } from "lucide-react"; // Import the Upload icon
+import { useNavigate } from "react-router-dom";
 
 const Product_Data = [
     { id: 1, SizeName: "6", type: "t-Shirt" },
@@ -19,7 +20,9 @@ const SizeType = () => {
     const [newProduct, setNewProduct] = useState({ SizeName: "", type: "" });
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
-
+    const [selectedUser, setSelectedUser] = useState(null); // Store selected user for the student modal
+    const navigate = useNavigate()
+    const [isMapping, setIsMapping] = useState(false);
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
     const SearchHandler = (e) => {
@@ -88,7 +91,19 @@ const SizeType = () => {
             </button>
         </div>
     );
-
+    const mapping = (row) => (
+        <div className="flex items-center">
+          <button
+            onClick={() => {
+              setSelectedUser(row);
+              setIsMapping(true); // Open the dialog
+            }}
+            className="ml-2 flex items-center justify-center"
+          >
+            <ChevronRight size={20} className="text-primary" />
+          </button>
+        </div>
+      );
     const [uploadedFileName, setUploadedFileName] = useState("");
     
     const handleBulkUpload = (e) => {
@@ -156,6 +171,7 @@ const SizeType = () => {
                 data={getCurrentPageProducts()}
                 customStyles={{ table: "", header: "text-sm", cell: "text-sm" }}
                 actions={actions}
+                mapping={mapping}
             />
 
             <div className="flex justify-between mt-4">
@@ -323,6 +339,14 @@ const SizeType = () => {
             </form>
         </div>
     </div>
+)}
+{isMapping && (
+     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+     <div className="bg-white rounded-lg shadow-lg p-6">
+      
+       
+     </div>
+   </div>
 )}
 
         </motion.div>

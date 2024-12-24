@@ -56,13 +56,13 @@ const SidebarDropdown = ({ item, isOpen, toggleOpen, isSidebarOpen }) => {
     <>
       <motion.div
         onClick={toggleOpen}
-        className={`flex items-center font-semibold py-2 px-3 mb-2 text-md  rounded-lg cursor-pointer transition-colors
+        className={`flex items-center font-semibold scrollbar-custom  overflow-y-auto py-2 px-3 mb-2 text-md  rounded-lg cursor-pointer transition-colors
           ${isOpen ? "bg-primary text-white" : "hover:bg-primary hover:text-white text-gray-800"}`}
       >
         {item.icon}
         {isSidebarOpen && (
           <motion.span
-            className="ml-4 whitespace-nowrap"
+            className="ml-4 whitespace-nowrap scrollbar-custom "
             initial={{ opacity: 0, width: 0 }}
             animate={{ opacity: 1, width: "auto" }}
             exit={{ opacity: 0, width: 0 }}
@@ -141,7 +141,7 @@ const Sidebar = () => {
       }`}
       animate={{ width: isSidebarOpen ? 220 : 80 }}
     >
-      <div className="h-full bg-white shadow-md p-4 flex flex-col">
+      <div className="h-full bg-white  scrollbar-custom  overflow-y-auto shadow-md p-4 flex flex-col">
         <div className={`w-full flex  justify-between mb-6`}>
           <img
             src={logo}

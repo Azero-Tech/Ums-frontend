@@ -194,7 +194,7 @@ const ProductTable = () => {
     <select
         value={editProduct.client}
         onChange={(e) => setEditProduct({ ...editProduct, client: e.target.value })}
-        className='w-full px-4 py-2 border     rounded-md'
+        className='w-full px-4 py-2 border rounded-md'
     >
         <option value=''>Select Client Type</option>
         <option value='School'>School</option>
