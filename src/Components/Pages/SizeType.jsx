@@ -20,9 +20,11 @@ const SizeType = () => {
     const [newProduct, setNewProduct] = useState({ SizeName: "", type: "" });
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
-    const [selectedUser, setSelectedUser] = useState(null); // Store selected user for the student modal
-    const navigate = useNavigate()
     const [isMapping, setIsMapping] = useState(false);
+    const [mappingProduct, setMappingProduct] = useState({ SizeName: "", type: "" });
+    const [mappedProducts, setMappedProducts] = useState([]); // New state for mapped products
+    const [uploadedFileName, setUploadedFileName] = useState("");
+
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
     const SearchHandler = (e) => {
@@ -67,6 +69,16 @@ const SizeType = () => {
         setEditModalOpen(false);
     };
 
+    const handleMappingAdd = () => {
+        const newMappedProduct = { 
+            ...mappingProduct, 
+            id: mappedProducts.length + 1 
+        };
+        setMappedProducts([...mappedProducts, newMappedProduct]); // Add to mapped products
+        setIsMapping(false);
+        setMappingProduct({ SizeName: "", type: "", additionalParam: "" }); // Reset all fields
+    };
+
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
     const getCurrentPageProducts = () => {
         const start = (currentPage - 1) * itemsPerPage;
@@ -91,21 +103,20 @@ const SizeType = () => {
             </button>
         </div>
     );
+
     const mapping = (row) => (
         <div className="flex items-center">
-          <button
-            onClick={() => {
-              setSelectedUser(row);
-              setIsMapping(true); // Open the dialog
-            }}
-            className="ml-2 flex items-center justify-center"
-          >
-            <ChevronRight size={20} className="text-primary" />
-          </button>
+            <button
+                onClick={() => {
+                    setIsMapping(true); // Open the dialog
+                }}
+                className="ml-2 flex items-center justify-center"
+            >
+                <ChevronRight size={20} className="text-primary" />
+            </button>
         </div>
-      );
-    const [uploadedFileName, setUploadedFileName] = useState("");
-    
+    );
+
     const handleBulkUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -113,58 +124,54 @@ const SizeType = () => {
             // Process the file here (e.g., parse CSV, send to the server)
         }
     };
-    
+
     return (
         <motion.div
-        className="mt-12 bg-white rounded-md shadow-md mx-auto  section  p-5  relative z-10"
-
+            className="mt-12 bg-white rounded-md shadow-md mx-auto section p-5 relative z-10"
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, delay: 0.2 }}
         >
-           <div className="flex justify-between items-center mb-6">
-    <h2 className="text-xl font-semibold text-black">Size Type List</h2>
-    <div className="relative flex items-center">
-        <Search className="absolute left-3 text-gray-400 top-2.5" size={20} />
-        <input
-            type="text"
-            placeholder="Search..."
-            className="border rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onChange={SearchHandler}
-            value={searchTerm}
-        />
-    </div>
-    <div className="flex items-center gap-4">
-        {/* Add Bulk Upload Button */}
-        <div className="relative">
-            <input
-                type="file"
-                id="bulkUpload"
-                accept=".csv, .xls, .xlsx"
-                onChange={(e) => handleBulkUpload(e)}
-                className="hidden"
-            />
-            <label
-                htmlFor="bulkUpload"
-                className=" text-black border border-gray-300 px-4 py-2 rounded-lg cursor-pointer flex items-center gap-2 hover:bg-gray-200"
-            >
-                <Upload size={18} />
-                Bulk Upload
-            </label>
-        </div>
-        {/* Display Uploaded File Name */}
-        {uploadedFileName && (
-            <span className="text-sm text-gray-600">{uploadedFileName}</span>
-        )}
-        <button
-            onClick={() => setAddModalOpen(true)}
-            className="bg-primary text-white font-medium px-4 py-2 rounded hover:bg-blue-700"
-        >
-            Add Size Type
-        </button>
-    </div>
-</div>
-
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold text-black">Size Type List</h2>
+                <div className="relative flex items-center">
+                    <Search className="absolute left-3 text-gray-400 top-2.5" size={20} />
+                    <input
+                        type="text"
+                        placeholder="Search..."
+                        className="border rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onChange={SearchHandler}
+                        value={searchTerm}
+                    />
+                </div>
+                <div className="flex items-center gap-4">
+                    <div className="relative">
+                        <input
+                            type="file"
+                            id="bulkUpload"
+                            accept=".csv, .xls, .xlsx"
+                            onChange={(e) => handleBulkUpload(e)}
+                            className="hidden"
+                        />
+                        <label
+                            htmlFor="bulkUpload"
+                            className="text-black border border-gray-300 px-4 py-2 rounded-lg cursor-pointer flex items-center gap-2 hover:bg-gray-200"
+                        >
+                            <Upload size={18} />
+                            Bulk Upload
+                        </label>
+                    </div>
+                    {uploadedFileName && (
+                        <span className="text-sm text-gray-600">{uploadedFileName}</span>
+                    )}
+                    <button
+                        onClick={() => setAddModalOpen(true)}
+                        className="bg-primary text-white font-medium px-4 py-2 rounded hover:bg-blue-700"
+                    >
+                        Add Size Type
+                    </button>
+                </div>
+            </div>
 
             <Table
                 headers={headers}
@@ -205,7 +212,6 @@ const SizeType = () => {
                 <div className="text-sm">Total Sizes: {filteredProducts.length}</div>
             </div>
 
-            {/* Add Modal */}
             {isAddModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
                     <div className="bg-white relative p-6 rounded-lg w-3/5">
@@ -222,7 +228,7 @@ const SizeType = () => {
                                 handleAdd();
                             }}
                         >
-                            <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap- 4">
                                 <div>
                                     <label className="block text-sm font-medium mb-1">
                                         Size Name
@@ -274,81 +280,146 @@ const SizeType = () => {
                 </div>
             )}
             {isEditModalOpen && (
-    <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
-        <div className="bg-white p-6 rounded-lg w-3/5 relative">
-            <h2 className="text-lg font-semibold mb-4">Edit Size Type</h2>
+                <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-lg w-3/5 relative">
+                        <h2 className="text-lg font-semibold mb-4">Edit Size Type</h2>
+                        <button
+                            onClick={() => setEditModalOpen(false)}
+                            className="absolute top-3 right-3 text-black"
+                        >
+                            <X size={20} />
+                        </button>
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                handleSave();
+                            }}
+                        >
+                            <div className="flex flex-col gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">
+                                        Size Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editProduct?.SizeName || ""}
+                                        onChange={(e) =>
+                                            setEditProduct({
+                                                ...editProduct,
+                                                SizeName: e.target.value,
+                                            })
+                                        }
+                                        className="w-full border rounded px-3 py-2"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">
+                                        Size Type
+                                    </label>
+                                    <select
+                                        value={editProduct?.type || ""}
+                                        onChange={(e) =>
+                                            setEditProduct({
+                                                ...editProduct,
+                                                type: e.target.value,
+                                            })
+                                        }
+                                        className="w-full border rounded px-3 py-2"
+                                        required
+                                    >
+                                        <option value="">Select Type</option>
+                                        <option value="t-Shirt">T-Shirt</option>
+                                        <option value="shirt">Shirt</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="mt-4 flex justify-end">
+                                <button
+                                    type="submit"
+                                    className="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700"
+                                >
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+         {isMapping && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-lg font-semibold mb-4">Map Size Type</h2>
             <button
-                onClick={() => setEditModalOpen(false)}
+                onClick={() => setIsMapping(false)}
                 className="absolute top-3 right-3 text-black"
             >
                 <X size={20} />
             </button>
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSave(); // Save edited product
-                }}
-            >
-                <div className="flex flex-col gap-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">
-                            Size Name
-                        </label>
-                        <input
-                            type="text"
-                            value={editProduct?.SizeName || ""}
-                            onChange={(e) =>
-                                setEditProduct({
-                                    ...editProduct,
-                                    SizeName: e.target.value,
-                                })
-                            }
-                            className="w-full border rounded px-3 py-2"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">
-                            Size Type
-                        </label>
-                        <select
-                            value={editProduct?.type || ""}
-                            onChange={(e) =>
-                                setEditProduct({
-                                    ...editProduct,
-                                    type: e.target.value,
-                                })
-                            }
-                            className="w-full border rounded px-3 py-2"
-                            required
-                        >
-                            <option value="">Select Type</option>
-                            <option value="t-Shirt">T-Shirt</option>
-                            <option value="shirt">Shirt</option>
-                        </select>
-                    </div>
+            <div className="flex flex-col gap-4">
+                <div>
+                    <label className="block text-sm font-medium mb-1">
+                        Selected Size Name
+                    </label>
+                    <span className="block border rounded px-3 py-2">
+                        {mappingProduct.SizeName || "None"}
+                    </span>
                 </div>
-                <div className="mt-4 flex justify-end">
-                    <button
-                        type="submit"
-                        className="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700"
+                <div>
+                    <label className="block text-sm font-medium mb-1">
+                        Selected Size Type
+                    </label>
+                    <span className="block border rounded px-3 py-2">
+                        {mappingProduct.type || "None"}
+                    </span>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">
+                        Additional Parameter
+                    </label>
+                    <select
+                        value={mappingProduct.additionalParam || ""}
+                        onChange={(e) =>
+                            setMappingProduct({
+                                ...mappingProduct,
+                                additionalParam: e.target.value,
+                            })
+                        }
+                        className="w-full border rounded px-3 py-2"
+                        required
                     >
-                        Save Changes
-                    </button>
+                        <option value="">Select Additional Parameter</option>
+                        <option value="Param1">Parameter 1</option>
+                        <option value="Param2">Parameter 2</option>
+                        <option value="Param3">Parameter 3</option>
+                    </select>
                 </div>
-            </form>
+            </div>
+            <div className="mt-4 flex justify-end">
+                <button
+                    onClick={() => {
+                        // Add logic to handle the addition of the mapped product
+                        handleMappingAdd(); // Add the selected size type to the table
+                    }}
+                    className="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
+                    Add to Table
+                </button>
+            </div>
         </div>
     </div>
 )}
-{isMapping && (
-     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-     <div className="bg-white rounded-lg shadow-lg p-6">
-      
-       
-     </div>
-   </div>
-)}
-
+            {mappedProducts.length > 0 && (
+                <div className="mt-6">
+                    <h2 className="text-xl font-semibold mb-4">Mapped Size Types</h2>
+                    <Table
+                        headers={["S.No", "Size Name", "Type"]}
+                        data={mappedProducts}
+                        customStyles={{ table: "", header: "text-sm", cell: "text-sm" }}
+                        actions={actions} // You can reuse the actions if needed
+                    />
+                </div>
+            )}
         </motion.div>
     );
 };
