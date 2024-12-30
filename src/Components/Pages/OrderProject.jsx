@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Edit, Trash2, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { X, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const initialData = [
@@ -12,10 +12,27 @@ const OrderProject = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredUsers, setFilteredUsers] = useState(initialData);
     const [isAddModalOpen, setAddModalOpen] = useState(false);
-    const [newUser, setNewUser] = useState({ name: "", branch: "" });
+    const [isEditModalOpen, setEditModalOpen] = useState(false);
+    const [newUser, setNewUser] = useState({ id: null, name: "", branch: "" });
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
     const navigate = useNavigate();
+
+    const industries = [
+        { label: "S", value: "it" },
+        { label: "Manufacturing", value: "manufacturing" },
+        { label: "Retail", value: "retail" }
+    ];
+
+    const industryTypes = {
+        it: ["School", "Collage", "Hospital"],
+    
+    };
+
+    const branches = {
+        corporate: ["Delhi", "Mumbai"],
+        individual: ["Vadodara", "Surat"]
+    };
 
     const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
@@ -31,6 +48,11 @@ const OrderProject = () => {
         setCurrentPage(1);
     };
 
+    const handleDelete = (userId) => {
+        const updatedUsers = filteredUsers.filter((user) => user.id !== userId);
+        setFilteredUsers(updatedUsers);
+    };
+
     const handleAdd = () => {
         const newId =
             filteredUsers.length > 0
@@ -39,43 +61,67 @@ const OrderProject = () => {
         const userToAdd = { ...newUser, id: newId };
         setFilteredUsers([userToAdd, ...filteredUsers]);
         setAddModalOpen(false);
-        setNewUser({ name: "", branch: "" });
+        setNewUser({ industry: "", industryType: "", branch: "" });
     };
 
-    const handleDelete = (userId) => {
-        const updatedUsers = filteredUsers.filter((user) => user.id !== userId);
+    const handleEdit = () => {
+        const updatedUsers = filteredUsers.map((user) =>
+            user.id === newUser.id ? { ...user, name: newUser.name, branch: newUser.branch } : user
+        );
         setFilteredUsers(updatedUsers);
+        setEditModalOpen(false);
+        setNewUser({ id: null, name: "", branch: "" });
+    };
+
+    const handleIndustryChange = (e) => {
+        const selectedIndustry = e.target.value;
+        setNewUser({
+            ...newUser,
+            industry: selectedIndustry,
+            industryType: "", // Reset industry type
+            branch: "" // Reset branch
+        });
+    };
+
+    const handleIndustryTypeChange = (e) => {
+        setNewUser({ ...newUser, industryType: e.target.value, branch: "" }); // Reset branch
+    };
+
+    const handleBranchChange = (e) => {
+        setNewUser({ ...newUser, branch: e.target.value });
     };
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-    const headers = ["S.No", "Name", "Branch"];
-
+    const headers = ["S.No",  "Branch", "Industry"];
     const actions = (row) => (
         <div className="flex gap-2">
             <button
-                onClick={() => console.log("Edit User:", row)}
+                onClick={() => {
+                    setEditModalOpen(true);
+                    setNewUser({ id: row.id, name: row.name, branch: row.branch });
+                }}
                 className="text-blue-500 hover:text-blue-700"
             >
                 <Edit size={18} />
             </button>
             <button
-                onClick={() => handleDelete(row.id)}
+                onClick={() => {
+                    if (window.confirm("Are you sure you want to delete this order?")) {
+                        handleDelete(row.id);
+                    }
+                }}
                 className="text-red-500 hover:text-red-700"
             >
                 <Trash2 size={18} />
             </button>
         </div>
     );
+
     const studentAction = (row) => (
         <div className="flex items-center">
-         
             <button
-                onClick={() => {
-                   
-                    navigate('/student')
- 
-                }}
+                onClick={() => navigate('/student')}
                 className="ml-2 flex items-center justify-center"
             >
                 <ChevronRight size={20} className="text-primary" />
@@ -107,8 +153,6 @@ const OrderProject = () => {
                     Add Order
                 </button>
             </div>
-
-            {/* New Table */}
             <div className="overflow-x-auto">
                 <table className="min-w-full table-auto border-collapse">
                     <thead>
@@ -123,8 +167,6 @@ const OrderProject = () => {
                             ))}
                             <th className="px-4 py-2 text-left border-b font-semibold">Actions</th>
                             <th className="px-4 py-2 text-left border-b font-semibold">Student</th>
-
-
                         </tr>
                     </thead>
                     <tbody>
@@ -137,7 +179,6 @@ const OrderProject = () => {
                                     <td className="px-4 py-2 border-b">{user.branch}</td>
                                     <td className="px-4 py-2 border-b">{actions(user)}</td>
                                     <td className="px-4 py-2 border-b">{studentAction(user)}</td>
-
                                 </tr>
                             ))}
                     </tbody>
@@ -150,11 +191,7 @@ const OrderProject = () => {
                     <button
                         onClick={() => paginate(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className={`px-3 py-1 border rounded-md ${
-                            currentPage === 1
-                                ? "border-gray-400 text-gray-400"
-                                : "border-gray-300 hover:bg-gray-200"
-                        }`}
+                        className={`px-3 py-1 border rounded-md ${currentPage === 1 ? "border-gray-400 text-gray-400" : "border-gray-300 hover:bg-gray-200"}`}
                     >
                         <ChevronLeft size={18} />
                     </button>
@@ -164,11 +201,7 @@ const OrderProject = () => {
                     <button
                         onClick={() => paginate(currentPage + 1)}
                         disabled={currentPage === totalPages}
-                        className={`px-3 py-1 border rounded-md ${
-                            currentPage === totalPages
-                                ? "border-gray-400 text-gray-400"
-                                : "border-gray-300 hover:bg-gray-200"
-                        }`}
+                        className={`px-3 py-1 border rounded-md ${currentPage === totalPages ? "border-gray-400 text-gray-400" : "border-gray-300 hover:bg-gray-200"}`}
                     >
                         <ChevronRight size={18} />
                     </button>
@@ -187,51 +220,109 @@ const OrderProject = () => {
                         >
                             <X size={20} />
                         </button>
-                        <form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                handleAdd();
-                            }}
-                        >
-                            <div className="flex flex-col gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Industry</label>
+                                <select
+                                    value={newUser.industry}
+                                    onChange={handleIndustryChange}
+                                    className="w-full border rounded px-3 py-2"
+                                    required
+                                >
+                                    <option value="">Select Industry</option>
+                                    {industries.map((industry) => (
+                                        <option key={industry.value} value={industry.value}>
+                                            {industry.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            {newUser.industry && (
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">Client Type</label>
+                                    <label className="block text-sm font-medium mb-1">Industry Type</label>
                                     <select
-                                        value={newUser.name}
-                                        onChange={(e) =>
-                                            setNewUser({ ...newUser, name: e.target.value })
-                                        }
+                                        value={newUser.industryType}
+                                        onChange={handleIndustryTypeChange}
                                         className="w-full border rounded px-3 py-2"
                                         required
                                     >
-                                        <option value="">Select Name</option>
-                                        <option value="John Doe">John Doe</option>
-                                        <option value="Jane Smith">Jane Smith</option>
+                                        <option value="">Select Industry Type</option>
+                                        {industryTypes[newUser.industry]?.map((type) => (
+                                            <option key={type} value={type}>
+                                                {type}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
+                            )}
+                            {newUser.industryType && (
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Branch</label>
                                     <select
                                         value={newUser.branch}
-                                        onChange={(e) =>
-                                            setNewUser({ ...newUser, branch: e.target.value })
-                                        }
+                                        onChange={handleBranchChange}
                                         className="w-full border rounded px-3 py-2"
                                         required
                                     >
                                         <option value="">Select Branch</option>
-                                        <option value="corporate">Delhi</option>
-                                        <option value="individual">Vadodara</option>
+                                        {branches[newUser.industryType]?.map((branch) => (
+                                            <option key={branch} value={branch}>
+                                                {branch}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
-                                <button
-                                    type="submit"
-                                    className="bg-primary font-medium text-white px-4 py-2 rounded-md"
-                                >
-                                    Save
-                                </button>
+                            )}
+                            <button
+                                onClick={handleAdd}
+                                className="bg-primary font-medium text-white px-4 py-2 rounded-md mt-4"
+                            >
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit User Modal */}
+            {isEditModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-lg w-3/5 relative">
+                        <h2 className="text-lg font-semibold mb-4">Edit Order</h2>
+                        <button
+                            onClick={() => setEditModalOpen(false)}
+                            className="absolute top-2 right-2 text-red-500"
+                        >
+                            <X size={20} />
+                        </button>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Name</label>
+                                <input
+                                    type="text"
+                                    className="w-full border rounded px-3 py-2"
+                                    value={newUser.name}
+                                    onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                                    required
+                                />
                             </div>
-                        </form>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Branch</label>
+                                <input
+                                    type="text"
+                                    className="w-full border rounded px-3 py-2"
+                                    value={newUser.branch}
+                                    onChange={(e) => setNewUser({ ...newUser, branch: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <button
+                                onClick={handleEdit}
+                                className="bg-primary font-medium text-white px-4 py-2 rounded-md mt-4"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
