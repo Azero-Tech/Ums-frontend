@@ -1,37 +1,34 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Edit, Search, Trash2, ChevronLeft, ChevronRight, X } from "lucide-react";
-import Table from "../UI/Table";
 
 const Product_Data = [
     {
         id: 1,
-        fullName: "jayant vyas",
+        fullName: "Jayant Vyas",
         address: "SINGH POL KI GHATI",
         city: "JODHPUR",
         gender: "Male",
         email: "jayantvyas07@gmail.com",
-        mobile:"933980809"
-
+        mobile: "933980809"
     },
     {
         id: 2,
-        fullName: "Aayushi Vyas	",
+        fullName: "Aayushi Vyas",
         address: "Greenfield 3 F -303 Vasna - Bhayli Main Rd, near Waves Club & Bright Day School, Bhayli, Vadodara, Gujarat",
         city: "Vadodara",
-        gender: "Male",
+        gender: "Female",
         email: "Aayushijoshi908@gmail.com",
-        mobile:"894028173"
-
+        mobile: "894028173"
     },
     {
         id: 3,
         fullName: "Nitin Parmar",
-        address: "104,rajat mansion	",
+        address: "104, Rajat Mansion",
         city: "MUMBAI",
         gender: "Male",
         email: "nitinprmr4@gmail.com",
-        mobile:"894028173"
+        mobile: "894028173"
     },
 ];
 
@@ -42,13 +39,12 @@ const User = () => {
     const [isAddModalOpen, setAddModalOpen] = useState(false);
     const [editProduct, setEditProduct] = useState(null);
     const [newProduct, setNewProduct] = useState({
-        id:"",
         fullName: "",
         address: "",
         city: "",
         gender: "",
         email: "",
-        mobile:""
+        mobile: ""
     });
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
@@ -84,7 +80,7 @@ const User = () => {
             filteredProducts.length > 0
                 ? Math.max(...filteredProducts.map((product) => product.id)) + 1
                 : 1;
-        const productToAdd = {id: newId, ...newProduct };
+        const productToAdd = { id: newId, ...newProduct };
         setFilteredProducts([productToAdd, ...filteredProducts]);
         setAddModalOpen(false);
         setNewProduct({
@@ -93,6 +89,7 @@ const User = () => {
             city: "",
             gender: "",
             email: "",
+            mobile: ""
         });
     };
 
@@ -111,13 +108,13 @@ const User = () => {
     };
 
     const headers = [
-        "S.No",
+        "S .No",
         "Full Name",
         "Address",
         "City",
         "Gender",
         "Email",
-        "mobile"
+        "Mobile"
     ];
 
     const actions = (row) => (
@@ -139,8 +136,7 @@ const User = () => {
 
     return (
         <motion.div
-        className="mt-12 bg-white rounded-md shadow-md mx-auto  section  p-5  relative z-10"
-
+            className="mt-12 bg-white rounded-md shadow-md mx-auto section p-5 relative z-10"
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, delay: 0.2 }}
@@ -154,7 +150,7 @@ const User = () => {
                     />
                     <input
                         type="text"
-                        placeholder="Search User..."
+                        placeholder="Search tailor..."
                         className="border rounded-lg pl-10 pr-4 py-2 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500"
                         onChange={SearchHandler}
                         value={searchTerm}
@@ -164,22 +160,42 @@ const User = () => {
                     onClick={() => setAddModalOpen(true)}
                     className="bg-primary font-medium text-white text-md px-4 py-2 rounded-md"
                 >
-                    Add User
+                    Add Tailor
                 </button>
             </div>
 
-            <Table
-                headers={headers}
-                data={getCurrentPageProducts()}
-                customStyles={{
-                    table: "",
-                    header: "text-sm",
-                    cell: "text-sm",
-                }}
-                actions={actions}
-            />
+            <table className="min-w-full table-auto">
+                <thead>
+                    <tr className="border-b text-nowrap">
+                        {headers.map((header, index) => (
+                            <th
+                                key={index}
+                                className=" px-4 py-2 text-left font-semibold"
+                            >
+                                {header}
+                            </th>
 
-<div className='flex flex-col md:flex-row justify-between mt-4 space-x-2 items-center'>
+                        ))}
+                         {actions && <th className="px-4  py-3 text-left text-xs sm:text-sm font-medium">Actions</th>}
+                    </tr>
+                </thead>
+                <tbody>
+                    {getCurrentPageProducts().map((item, index) => (
+                        <tr key={item.id}>
+                            <td className="border-b px-4 py-2">{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+                            <td className="border-b px-4 py-2">{item.fullName}</td>
+                            <td className="border-b px-4  truncate ... py-2">{item.address.slice(0, 10)}</td>
+                            <td className="border-b px-4 py-2">{item.city}</td>
+                            <td className="border-b px-4 py-2">{item.gender}</td>
+                            <td className="border-b px-4 py-2">{item.email}</td>
+                            <td className="border-b px-4 py-2">{item.mobile}</td>
+                            <td className="border-b px-4 py-2">{actions(item)}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+
+            <div className='flex flex-col md:flex-row justify-between mt-4 space-x-2 items-center'>
                 <div className='flex items-center'>
                     <button
                         onClick={() => paginate(currentPage - 1)}
@@ -202,245 +218,229 @@ const User = () => {
 
             {/* Add Modal */}
             {isAddModalOpen && (
-    <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
-      <motion.div
-                             className='bg-white rounded-lg shadow-lg p-6 max-w-3xl  relative w-full'
-                             initial={{ scale: 0 }}
-                             animate={{ scale: 1 }}
-                             transition={{ duration: 0.3 }}
-                         >
-            <h2 className="text-lg font-semibold mb-4">Add User</h2>
-            
-            {/* Close Button */}
-            <button
-                onClick={() => setAddModalOpen(false)}
-                className="absolute top-2 right-2 text-red-500"
-            >
-                <X size={20} />
-            </button>
-
-            {/* Form Fields */}
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    handleAdd();
-                }}
-            >
-                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Full Name</label>
-                        <input
-                            type="text"
-                            value={newProduct.fullName}
-                            onChange={(e) =>
-                                setNewProduct({ ...newProduct, fullName: e.target.value })
-                            }
-                            className="w-full border rounded px-3 py-2"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Address</label>
-                        <input
-                            type="text"
-                            value={newProduct.address}
-                            onChange={(e) =>
-                                setNewProduct({ ...newProduct, address: e.target.value })
-                            }
-                            className="w-full border rounded px-3 py-2"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">City</label>
-                        <input
-                            type="text"
-                            value={newProduct.city}
-                            onChange={(e) =>
-                                setNewProduct({ ...newProduct, city: e.target.value })
-                            }
-                            className="w-full border rounded px-3 py-2"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Gender</label>
-                        <select
-                            value={newProduct.gender}
-                            onChange={(e) =>
-                                setNewProduct({ ...newProduct, gender: e.target.value })
-                            }
-                            className="w-full border rounded px-3 py-2"
-                            required
-                        >
-                            <option value="">Select Gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Email</label>
-                        <input
-                            type="email"
-                            value={newProduct.email}
-                            onChange={(e) =>
-                                setNewProduct({ ...newProduct, email: e.target.value })
-                            }
-                            className="w-full border rounded px-3 py-2"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Mobile Number</label>
-                        <input
-                            type="tel"
-                            value={newProduct.mobile}
-                            onChange={(e) =>
-                                setNewProduct({ ...newProduct, mobile: e.target.value })
-                            }
-                            className="w-full border rounded px-3 py-2"
-                            required
-                        />
-                    </div>
-                </div>
-
-                {/* Add Button */}
-                <div className="mt-1 flex justify-end">
-                    <button
-                        type="submit"
-                        className="bg-primary text-white font-medium px-4 py-2 rounded"
+                <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+                    <motion.div
+                        className='bg-white rounded-lg shadow-lg p-6 max-w-3xl relative w-full'
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.3 }}
                     >
-                        Add
-                    </button>
+                        <h2 className="text-lg font-semibold mb-4">Add User</h2>
+                        <button
+                            onClick={() => setAddModalOpen(false)}
+                            className="absolute top-2 right-2 text-red-500"
+                        >
+                            <X size={20} />
+                        </button>
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                handleAdd();
+                            }}
+                        >
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Full Name</label>
+                                    <input
+                                        type="text"
+                                        value={newProduct.fullName}
+                                        onChange={(e) =>
+                                            setNewProduct({ ...newProduct, fullName: e.target.value })
+                                        }
+                                        className="w-full border rounded px-3 py-2"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Address</label>
+                                    <input
+                                        type="text"
+                                        value={newProduct.address}
+                                        onChange={(e) =>
+                                            setNewProduct({ ...newProduct, address: e.target.value })
+                                        }
+                                        className="w-full border rounded px-3 py-2"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">City</label>
+                                    <input
+                                        type="text"
+                                        value={newProduct.city}
+                                        onChange={(e) =>
+                                            setNewProduct({ ...newProduct, city: e.target.value })
+                                        }
+                                        className="w-full border rounded px-3 py-2"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Gender</label>
+                                    <select
+                                        value={newProduct.gender}
+                                        onChange={(e) =>
+                                            setNewProduct({ ...newProduct, gender: e.target.value })
+                                        }
+                                        className="w-full border rounded px-3 py-2"
+                                        required
+                                    >
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Email</label>
+                                    <input
+                                        type="email"
+                                        value={newProduct.email}
+                                        onChange={(e) =>
+                                            setNewProduct({ ...newProduct, email: e.target.value })
+                                        }
+                                        className="w-full border rounded px-3 py-2"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Mobile Number</label>
+                                    <input
+                                        type="tel"
+                                        value={newProduct.mobile}
+                                        onChange={(e) =>
+                                            setNewProduct({ ...newProduct, mobile: e.target.value })
+                                        }
+                                        className="w-full border rounded px-3 py-2"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="mt-1 flex justify-end">
+                                <button
+                                    type="submit"
+                                    className="bg-primary text-white font-medium px-4 py-2 rounded"
+                                >
+                                    Add
+                                </button>
+                            </div>
+                        </form>
+                    </motion.div>
                 </div>
-            </form>
-        </motion.div>
-    </div>
-)}
-
+            )}
 
             {/* Edit Modal */}
             {isEditModalOpen && (
-    <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
-     <motion.div
-                             className='bg-white rounded-lg shadow-lg p-6 max-w-3xl  relative w-full'
-                             initial={{ scale: 0 }}
-                             animate={{ scale: 1 }}
-                             transition={{ duration: 0.3 }}
-                         >
-            <h2 className="text-lg font-semibold mb-4">Edit User</h2>
-            
-            {/* Close Button */}
-            <button
-                onClick={() => setEditModalOpen(false)}
-                className="absolute top-2 right-2 text-red-500"
-            >
-                <X size={20} />
-            </button>
-
-            {/* Form Fields */}
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSave();
-                }}
-            >
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Full Name</label>
-                        <input
-                            type="text"
-                            value={editProduct.fullName}
-                            onChange={(e) =>
-                                setEditProduct({ ...editProduct, fullName: e.target.value })
-                            }
-                            className="w-full border rounded px-3 py-2"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Address</label>
-                        <input
-                            type="text"
-                            value={editProduct.address}
-                            onChange={(e) =>
-                                setEditProduct({ ...editProduct, address: e.target.value })
-                            }
-                            className="w-full border rounded px-3 py-2"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">City</label>
-                        <input
-                            type="text"
-                            value={editProduct.city}
-                            onChange={(e) =>
-                                setEditProduct({ ...editProduct, city: e.target.value })
-                            }
-                            className="w-full border rounded px-3 py-2"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Gender</label>
-                        <select
-                            value={editProduct.gender}
-                            onChange={(e) =>
-                                setEditProduct({ ...editProduct, gender: e.target.value })
-                            }
-                            className="w-full border rounded px-3 py-2"
-                            required
-                        >
-                            <option value="">Select Gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Email</label>
-                        <input
-                            type="email"
-                            value={editProduct.email}
-                            onChange={(e) =>
-                                setEditProduct({ ...editProduct, email: e.target.value })
-                            }
-                            className="w-full border rounded px-3 py-2"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Mobile Number</label>
-                        <input
-                            type="tel"
-                            value={editProduct.mobile}
-                            onChange={(e) =>
-                                setEditProduct({ ...editProduct, mobile: e.target.value })
-                            }
-                            className="w-full border rounded px-3 py-2"
-                            required
-                        />
-                    </div>
-                </div>
-
-                {/* Save Button */}
-                <div className="mt-1 flex justify-end">
-                    <button
-                        type="submit"
-                        className="bg-primary text-white font-medium px-4 py-2 rounded hover:bg-green-600"
+                <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+                    <motion.div
+                        className='bg-white rounded-lg shadow-lg p-6 max-w-3xl relative w-full'
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.3 }}
                     >
-                        Save
-                    </button>
+                        <h2 className="text-lg font-semibold mb-4">Edit User</h2>
+                        <button
+                            onClick={() => setEditModalOpen(false)}
+                            className="absolute top-2 right-2 text-red-500"
+                        >
+                            <X size={20} />
+                        </button>
+                        <form
+                           onSubmit={(e) => {
+                            e.preventDefault();
+                                handleSave();
+                            }}
+                        >
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Full Name</label>
+                                    <input
+                                        type="text"
+                                        value={editProduct.fullName}
+                                        onChange={(e) =>
+                                            setEditProduct({ ...editProduct, fullName: e.target.value })
+                                        }
+                                        className="w-full border rounded px-3 py-2"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Address</label>
+                                    <input
+                                        type="text"
+                                        value={editProduct.address}
+                                        onChange={(e) =>
+                                            setEditProduct({ ...editProduct, address: e.target.value })
+                                        }
+                                        className="w-full border rounded px-3 py-2"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">City</label>
+                                    <input
+                                        type="text"
+                                        value={editProduct.city}
+                                        onChange={(e) =>
+                                            setEditProduct({ ...editProduct, city: e.target.value })
+                                        }
+                                        className="w-full border rounded px-3 py-2"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Gender</label>
+                                    <select
+                                        value={editProduct.gender}
+                                        onChange={(e) =>
+                                            setEditProduct({ ...editProduct, gender: e.target.value })
+                                        }
+                                        className="w-full border rounded px-3 py-2"
+                                        required
+                                    >
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Email</label>
+                                    <input
+                                        type="email"
+                                        value={editProduct.email}
+                                        onChange={(e) =>
+                                            setEditProduct({ ...editProduct, email: e.target.value })
+                                        }
+                                        className="w-full border rounded px-3 py-2"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Mobile Number</label>
+                                    <input
+                                        type="tel"
+                                        value={editProduct.mobile}
+                                        onChange={(e) =>
+                                            setEditProduct({ ...editProduct, mobile: e.target.value })
+                                        }
+                                        className="w-full border rounded px-3 py-2"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="mt-1 flex justify-end">
+                                <button
+                                    type="submit"
+                                    className="bg-primary text-white font-medium px-4 py-2 rounded hover:bg-green-600"
+                                >
+                                    Save
+                                </button>
+                            </div>
+                        </form>
+                    </motion.div>
                 </div>
-            </form>
-        </motion.div>
-    </div>
-)}
-
+            )}
         </motion.div>
     );
 };

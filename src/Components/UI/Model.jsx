@@ -27,7 +27,7 @@ const Modal = ({ title, onClose, onSubmit, inputs }) => {
                 type="text"
                 value={input.value}
                 onChange={input.onChange}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="block w-full border-gray-300 rounded-md py-3 border outline-none shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               />
             </div>
           ))}
@@ -35,15 +35,15 @@ const Modal = ({ title, onClose, onSubmit, inputs }) => {
         <div className="mt-6 flex justify-end space-x-4">
           <button
             onClick={onClose}
-            className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-700"
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
           >
             Cancel
           </button>
           <button
             onClick={onSubmit}
-            className="bg-primary text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700"
           >
-            Save
+            Submit
           </button>
         </div>
       </div>
@@ -52,3 +52,16 @@ const Modal = ({ title, onClose, onSubmit, inputs }) => {
 };
 
 export default Modal;
+
+
+
+
+
+
+
+
+
+
+
+
+

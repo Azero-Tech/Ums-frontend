@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Edit, Search, Trash2, ChevronLeft, ChevronRight, X } from "lucide-react";
-import Table from "../UI/Table";
 import { Upload } from "lucide-react"; // Import the Upload icon
 import { useNavigate } from "react-router-dom";
+import Mapping from "./Mapping";
 
 const Product_Data = [
     { id: 1, SizeName: "6", type: "t-Shirt" },
@@ -70,14 +70,24 @@ const SizeType = () => {
     };
 
     const handleMappingAdd = () => {
-        const newMappedProduct = { 
-            ...mappingProduct, 
-            id: mappedProducts.length + 1 
-        };
-        setMappedProducts([...mappedProducts, newMappedProduct]); // Add to mapped products
-        setIsMapping(false);
-        setMappingProduct({ SizeName: "", type: "", additionalParam: "" }); // Reset all fields
-    };
+        if (mappingProduct?.additionalParam) {
+          setMappedProducts((prev) => [
+            ...prev,
+            { parameter: mappingProduct.additionalParam },
+          ]);
+        }
+      };
+      const handleParaEdit = (index) => {
+        const itemToEdit = mappedProducts[index];
+        // Logic to edit the parameter (e.g., open an edit form/modal)
+      };
+      
+      const handleParaDelete = (index) => {
+        const updatedProducts = mappedProducts.filter((_, i) => i !== index);
+        setMappedProducts(updatedProducts);
+      };
+      
+    const navigate = useNavigate();
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
     const getCurrentPageProducts = () => {
@@ -108,7 +118,9 @@ const SizeType = () => {
         <div className="flex items-center">
             <button
                 onClick={() => {
-                    setIsMapping(true); // Open the dialog
+                    
+                    setMappingProduct(row); // Set the mapping product
+                    setIsMapping(true); // Open the mapping modal
                 }}
                 className="ml-2 flex items-center justify-center"
             >
@@ -173,38 +185,57 @@ const SizeType = () => {
                 </div>
             </div>
 
-            <Table
-                headers={headers}
-                data={getCurrentPageProducts()}
-                customStyles={{ table: "", header: "text-sm", cell: "text-sm" }}
-                actions={actions}
-                mapping={mapping}
-            />
+            <div className="overflow-x-auto">
+                <table className="min-w-full table-auto divide-y divide-gray-600">
+                    <thead>
+                        <tr>
+                            {headers.map((header, index) => (
+                                <th key={index} className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
+                                    {header}
+                                </th>
+                            ))}
+                            <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium">Actions</th>
+                            <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium">Mapping</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {getCurrentPageProducts().length > 0 ? (
+                            getCurrentPageProducts().map((row, rowIndex) => (
+                                <tr key={rowIndex} className={`${rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
+                                    <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{rowIndex + 1 + (currentPage - 1) * itemsPerPage}</td>
+                                    <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{row.SizeName}</td>
+                                    <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{row.type}</td>
+                                    <td className="px-4 py-2 text-gray-700 border-b">{actions(row)}</td>
+                                    <td className="px-4 py-2 text-gray-700 border-b">{mapping(row)}</td>
+
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={headers.length + 1} className="text-center py-4 text-gray-500 text-xs sm:text-sm">
+                                    No data available
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
             <div className="flex justify-between mt-4">
                 <div className="flex items-center">
                     <button
                         onClick={() => paginate(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className={`px-3 py-1 border rounded-md ${
-                            currentPage === 1
-                                ? "border-gray-400 text-gray-400"
-                                : "border-gray-300 hover:bg-gray-200"
-                        }`}
+                        className={`px-3 py-1 border rounded-md ${currentPage === 1 ? "border-gray-400 text-gray-400" : "border-gray-300 hover:bg-gray-200"}`}
                     >
-                        <ChevronLeft size={18} />
+                        <ChevronLeft size={18 } />
                     </button>
-                    <span className="mx-2 text-sm">
-                        Page {currentPage} of {totalPages}
-                    </span>
+                    <span className="mx-2 text-sm">Page {currentPage} of {totalPages}</span>
                     <button
                         onClick={() => paginate(currentPage + 1)}
                         disabled={currentPage === totalPages}
-                        className={`px-3 py-1 border rounded-md ${
-                            currentPage === totalPages
-                                ? "border-gray-400 text-gray-400"
-                                : "border-gray-300 hover:bg-gray-200"
-                        }`}
+                        className={`px-3 py-1 border rounded-md ${currentPage === totalPages ? "border-gray-400 text-gray-400" : "border-gray-300 hover:bg-gray-200"}`}
                     >
                         <ChevronRight size={18} />
                     </button>
@@ -228,11 +259,9 @@ const SizeType = () => {
                                 handleAdd();
                             }}
                         >
-                            <div className="flex flex-col gap- 4">
+                            <div className="flex flex-col gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">
-                                        Size Name
-                                    </label>
+                                    <label className="block text-sm font-medium mb-1">Size Name</label>
                                     <input
                                         type="text"
                                         value={newProduct.SizeName}
@@ -247,9 +276,7 @@ const SizeType = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">
-                                        Size Type
-                                    </label>
+                                    <label className="block text-sm font-medium mb-1">Size Type</label>
                                     <select
                                         value={newProduct.type}
                                         onChange={(e) =>
@@ -297,9 +324,7 @@ const SizeType = () => {
                         >
                             <div className="flex flex-col gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">
-                                        Size Name
-                                    </label>
+                                    <label className="block text-sm font-medium mb-1">Size Name</label>
                                     <input
                                         type="text"
                                         value={editProduct?.SizeName || ""}
@@ -314,9 +339,7 @@ const SizeType = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">
-                                        Size Type
-                                    </label>
+                                    <label className="block text-sm font-medium mb-1">Size Type</label>
                                     <select
                                         value={editProduct?.type || ""}
                                         onChange={(e) =>
@@ -337,7 +360,7 @@ const SizeType = () => {
                             <div className="mt-4 flex justify-end">
                                 <button
                                     type="submit"
-                                    className="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700"
+                                    className=" bg-primary text-white px-4 py-2 rounded hover:bg-blue-700"
                                 >
                                     Save Changes
                                 </button>
@@ -346,82 +369,21 @@ const SizeType = () => {
                     </div>
                 </div>
             )}
-         {isMapping && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-lg font-semibold mb-4">Map Size Type</h2>
-            <button
-                onClick={() => setIsMapping(false)}
-                className="absolute top-3 right-3 text-black"
-            >
-                <X size={20} />
-            </button>
-            <div className="flex flex-col gap-4">
-                <div>
-                    <label className="block text-sm font-medium mb-1">
-                        Selected Size Name
-                    </label>
-                    <span className="block border rounded px-3 py-2">
-                        {mappingProduct.SizeName || "None"}
-                    </span>
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">
-                        Selected Size Type
-                    </label>
-                    <span className="block border rounded px-3 py-2">
-                        {mappingProduct.type || "None"}
-                    </span>
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">
-                        Additional Parameter
-                    </label>
-                    <select
-                        value={mappingProduct.additionalParam || ""}
-                        onChange={(e) =>
-                            setMappingProduct({
-                                ...mappingProduct,
-                                additionalParam: e.target.value,
-                            })
-                        }
-                        className="w-full border rounded px-3 py-2"
-                        required
-                    >
-                        <option value="">Select Additional Parameter</option>
-                        <option value="Param1">Parameter 1</option>
-                        <option value="Param2">Parameter 2</option>
-                        <option value="Param3">Parameter 3</option>
-                    </select>
-                </div>
-            </div>
-            <div className="mt-4 flex justify-end">
-                <button
-                    onClick={() => {
-                        // Add logic to handle the addition of the mapped product
-                        handleMappingAdd(); // Add the selected size type to the table
-                    }}
-                    className="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700"
-                >
-                    Add to Table
-                </button>
-            </div>
-        </div>
-    </div>
+            {isMapping && (
+    <Mapping 
+        mappingProduct={mappingProduct} 
+        setIsMapping={setIsMapping}
+        mappedProducts={mappedProducts} 
+        setMappingProduct={setMappingProduct} 
+        handleMappingAdd={handleMappingAdd}
+        handleParaEdit={handleParaEdit}
+        handleParaDelete={handleParaDelete}
+    />
 )}
-            {mappedProducts.length > 0 && (
-                <div className="mt-6">
-                    <h2 className="text-xl font-semibold mb-4">Mapped Size Types</h2>
-                    <Table
-                        headers={["S.No", "Size Name", "Type"]}
-                        data={mappedProducts}
-                        customStyles={{ table: "", header: "text-sm", cell: "text-sm" }}
-                        actions={actions} // You can reuse the actions if needed
-                    />
-                </div>
-            )}
+            
+
         </motion.div>
     );
-};
+};  
 
 export default SizeType;

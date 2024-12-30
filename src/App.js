@@ -18,12 +18,24 @@ import Student from './Components/Pages/Student';
 import TailorLogs from './Components/Pages/TailorLogs';
 import Login from './Components/UI/Login';
 import Signup from './Components/UI/Signup';
+import Mapping from './Components/Pages/Mapping';
+import ProtectedRoute from './Components/ProtectedRoute';
+import TialorDhasboard from './Components/Tailor/TialorDhasboard';
  
 
 const App = () => {
   return (
     <BrowserRouter>
+     <Routes>
+    
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/" element={<Login />} />
+       
+            </Routes>
+    
       <div className="flex h-screen bg-gray-50 text-black overflow-hidden">
+
         {/* Sidebar */}
         <Sidebar />
 
@@ -32,12 +44,12 @@ const App = () => {
           <Header />
 
           <Routes>
-            {/* Auth Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/" element={<Login />} /> {/* Default to Login */}
 
-            {/* App Routes */}
+            <Route
+            // element={
+            //   <ProtectedRoute allowedRoles={["super-admin"]} />
+            // }
+          >
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/clients" element={<ProductTable />} />
             <Route path="/measurement" element={<Measurement />} />
@@ -48,7 +60,18 @@ const App = () => {
             <Route path="/order-project" element={<OrderProject />} />
             <Route path="/query" element={<Query />} />
             <Route path="/student" element={<Student />} />
+            <Route path="/mapping" element={<Mapping />} />
+
             <Route path="/tailorlogs" element={<TailorLogs />} />
+            </Route>
+            <Route
+            // element={
+            //   <ProtectedRoute allowedRoles={[ "Tailor"]} />
+            // }
+          >
+            <Route path="/tailor" element={<TialorDhasboard />} />
+            
+            </Route>
           </Routes>
         </div>
       </div>

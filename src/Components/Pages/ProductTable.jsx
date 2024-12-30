@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Edit, Search, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
-import Table from '../UI/Table';
 
 const Product_Data = [
     { id: 1, client: "School", remark: "Electronics", CreationDate: "12-12-24" },
@@ -78,8 +77,7 @@ const ProductTable = () => {
 
     return (
         <motion.div
-        className="mt-12 bg-white rounded-md shadow-md mx-auto  section  p-5  relative z-10"
-
+            className="mt-12 bg-white rounded-md shadow-md mx-auto section p-5 relative z-10"
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, delay: 0.2 }}
@@ -102,12 +100,39 @@ const ProductTable = () => {
                 </button>
             </div>
 
-            <Table
-                headers={headers}
-                data={getCurrentPageProducts()}
-                customStyles={{ table: "", header: "text-sm", cell: "text-sm" }}
-                actions={actions}
-            />
+            <div className="overflow-x-auto">
+                <table className="min-w-full table-auto divide-y divide-gray-600">
+                    <thead>
+                        <tr>
+                            {headers.map((header, index) => (
+                                <th key={index} className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
+                                    {header}
+                                </th>
+                            ))}
+                            <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {getCurrentPageProducts().length > 0 ? (
+                            getCurrentPageProducts().map((row, rowIndex) => (
+                                <tr key={rowIndex} className={`${rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
+                                    <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{rowIndex + 1 + (currentPage - 1) * itemsPerPage}</td>
+                                    <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{row.client}</td>
+                                    <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{row.remark}</td>
+                                    <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{row.CreationDate}</td>
+                                    <td className="px-4 py-2 text-gray-700 border-b">{actions(row)}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={headers.length + 1} className="text-center py-4 text-gray-500 text-xs sm:text-sm">
+                                    No data available
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
             {/* Enhanced Pagination Controls */}
             <div className='flex flex-col md:flex-row justify-between mt-4 space-x-2 items-center'>
@@ -130,53 +155,49 @@ const ProductTable = () => {
                 </div>
                 <div className='text-sm font-medium tracking-wider mt-5 md:mt-0'>Total Clients: {filteredProducts.length}</div>
             </div>
-          {/* Add Product Modal */}
-{isAddModalOpen && (
-    <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50'>
-        <motion.div
-            className='bg-white rounded-lg shadow-lg p-6 max-w-xl w-full'
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.3 }}
-        >
-            <h1 className='text-2xl font-semibold mb-4 underline tracking-wider'>Add New Product</h1>
 
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            <div className='flex flex-col space-y-1'>
-    <label className='text-sm'>Client Type</label>
-    <input
-        type="text"
-        value={newProduct.client}
-        onChange={(e) => setNewProduct({ ...newProduct, client: e.target.value })}
-        placeholder="Enter Client Type"
-        className='w-full px-4 py-2 border rounded-md'
-    />
-</div>
-
-
-                <div className='flex flex-col space-y-1'>
-                    <label className='text-sm'>Remark</label>
-                    <input
-                        type="text"
-                        value={newProduct.remark}
-                        onChange={(e) => setNewProduct({ ...newProduct, remark: e.target.value })}
-                        placeholder='Remark'
-                        className='w-full px-4 py-2 border rounded-md'
-                    />
+            {/* Add Product Modal */}
+            {isAddModalOpen && (
+                <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50'>
+                    <motion.div
+                        className='bg-white rounded-lg shadow-lg p-6 max-w-xl w-full'
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <h1 className='text-2xl font-semibold mb-4 underline tracking-wider'>Add New Product</h1>
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                            <div className='flex flex-col space-y-1'>
+                                <label className='text-sm'>Client Type</label>
+                                <input
+                                    type="text"
+                                    value={newProduct.client}
+                                    onChange={(e) => setNewProduct({ ...newProduct, client: e.target.value })}
+                                    placeholder="Enter Client Type"
+                                    className='w-full px-4 py-2 border rounded-md'
+                                />
+                            </div>
+                            <div className='flex flex-col space-y-1'>
+                                <label className='text-sm'>Remark</label> <input
+                                    type="text"
+                                    value={newProduct.remark}
+                                    onChange={(e) => setNewProduct({ ...newProduct, remark: e.target.value })}
+                                    placeholder='Remark'
+                                    className='w-full px-4 py-2 text-black border rounded-md'
+                                />
+                            </div>
+                        </div>
+                        <div className='flex justify-end mt-5 space-x-2'>
+                            <button onClick={() => setAddModalOpen(false)} className='border px-4 py-2 rounded-md'>
+                                Cancel
+                            </button>
+                            <button onClick={handleAdd} className='bg-primary font-medium text-white text-md px-4 py-2 rounded-md'>
+                                Add Product
+                            </button>
+                        </div>
+                    </motion.div>
                 </div>
-            </div>
-
-            <div className='flex justify-end mt-5 space-x-2'>
-                <button onClick={() => setAddModalOpen(false)} className='border px-4 py-2 rounded-md'>
-                    Cancel
-                </button>
-                <button onClick={handleAdd} className='bg-primary font-medium text-white text-md px-4 py-2 rounded-md'>
-                    Add Product
-                </button>
-            </div>
-        </motion.div>
-    </div>
-)}
+            )}
 
             {/* Edit modal pop up */}
             {isEditModalOpen && (
@@ -191,15 +212,12 @@ const ProductTable = () => {
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                         <div className='flex flex-col space-y-1'>
     <label className='text-sm'>Client Type</label>
-    <select
+    <input
+        type='text'
         value={editProduct.client}
         onChange={(e) => setEditProduct({ ...editProduct, client: e.target.value })}
         className='w-full px-4 py-2 border rounded-md'
-    >
-        <option value=''>Select Client Type</option>
-        <option value='School'>School</option>
-        <option value='College'>College</option>
-    </select>
+    />
 </div>
 
                             <div className='flex flex-col space-y-1'>
@@ -208,12 +226,10 @@ const ProductTable = () => {
                                     type='text'
                                     value={editProduct.remark}
                                     onChange={(e) => setEditProduct({ ...editProduct, remark: e.target.value })}
-                                    className='w-full px-4 py-2 border text-white rounded-md'
+                                    className='w-full px-4 py-2 border text-black rounded-md'
                                 />
                             </div>
-                            
                         </div>
-
                         <div className='flex justify-end mt-5 space-x-2'>
                             <button
                                 onClick={() => setEditModalOpen(false)}
@@ -231,9 +247,6 @@ const ProductTable = () => {
                     </motion.div>
                 </div>
             )}
-
-            {/* Add Product Modal */}
-          
         </motion.div>
     );
 };

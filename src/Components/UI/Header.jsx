@@ -10,7 +10,7 @@ const Header = () => {
       <div className="flex items-center justify-between p-3"> {/* Reduced padding */}
         {/* Left side: Logo */}
         {/* <img src={logo} alt="Logo" className="h-8 object-contain" /> Reduced logo height */}
-        <h1 className="text-primary text-2xl pt-3 capitalize font-serif">Uniform Management System</h1>
+        <h1 className="text-primary text-2xl pt-3 capitalize font-medium">Uniform Management System</h1>
 
 
         {/* Right side: Admin Image */}

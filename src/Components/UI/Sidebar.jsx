@@ -22,30 +22,32 @@ import logo from "../../Assets/logo.jpeg";
 
 // Sidebar menu items configuration
 const SIDEBAR_ITEMS = [
-  { name: "Dashboard", href: "/", icon: <MdOutlineDashboard /> },
+  { name: "Dashboard", href: "/dashboard", icon: <MdOutlineDashboard /> },
+ 
+  { name: "Tailors", href: "/user", icon: <AiOutlineUsergroupAdd /> },
+  {
+    name: "Industrys",
+    href: "#",
+    icon: <AiOutlineBranches />,
+    subItems: [
+      { name: "industries List", href: "/client", icon: <MdOutlineListAlt /> },
+      { name: "Branches", href: "/branches", icon: <AiOutlineBranches /> },
+    ],
+  },
+  { name: "Order Project", href: "/order-project", icon: <MdOutlineFactCheck /> },
+  { name: "Query", href: "/query", icon: <MdOutlineQueryBuilder /> },
+  { name: "Tailor Session Log", href: "/tailorlogs", icon: <MdOutlineFactCheck /> },
+  { name: " Sizes", href: "/type-size", icon: <MdOutlineListAlt /> },
+
   {
     name: "Settings",
     href: "#",
     icon: <MdOutlineSettings />,
     subItems: [
-      { name: "Client Types", href: "/clients", icon: <MdOutlinePerson /> },
-      { name: "Type of Size", href: "/type-size", icon: <MdOutlineListAlt /> },
-      { name: "Measurement", href: "/measurement", icon: <MdOutlineQueryBuilder /> },
+      { name: "Industry Types", href: "/clients", icon: <MdOutlinePerson /> },
+      { name: "ParaMeter", href: "/measurement", icon: <MdOutlineQueryBuilder /> },
     ],
   },
-  { name: "Tailors", href: "/user", icon: <AiOutlineUsergroupAdd /> },
-  {
-    name: "Clients",
-    href: "#",
-    icon: <AiOutlineBranches />,
-    subItems: [
-      { name: "Client List", href: "/client", icon: <MdOutlineListAlt /> },
-      { name: "Branches", href: "/branches", icon: <AiOutlineBranches /> },
-    ],
-  },
-  { name: "OrderProject", href: "/order-project", icon: <MdOutlineFactCheck /> },
-  { name: "Query", href: "/query", icon: <MdOutlineQueryBuilder /> },
-  { name: "Tailor Session Log", href: "/tailorlogs", icon: <MdOutlineFactCheck /> },
 ];
 
 // Dropdown Component
@@ -86,7 +88,7 @@ const SidebarDropdown = ({ item, isOpen, toggleOpen, isSidebarOpen }) => {
             {item.subItems.map((subItem) => (
               <Link key={subItem.href} to={subItem.href}>
                 <motion.div
-                  className={`flex items-center font-medium py-2 px-3 mb-2 text-md rounded-lg transition-colors
+                  className={`flex items-center text-nowrap font-medium py-2 px-3 mb-2 text-md rounded-lg transition-colors
                     ${
                       location.pathname === subItem.href
                         ? "bg-primary text-white"
@@ -189,7 +191,7 @@ const Sidebar = () => {
                       transition={{ duration: 0.2 }}
                     >
                       {item.name}
-                    </motion.span>
+                    </motion.span>  
                   )}
                 </motion.div>
               </Link>
