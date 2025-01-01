@@ -1,143 +1,119 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Edit, Search, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Edit, Search, Trash2 } from "lucide-react";
 import Modal from "../UI/Model";
-
-const Product_Data = [
-  { parameterName: "Chest" },
-  { parameterName: "Waist" },
-];
+import { createParameter, getAllParameters, updateParameter, deleteParameter } from '../../apis/parameterApi';
+import { Switch } from '@mui/material'; 
 
 const Measurement = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredProducts, setFilteredProducts] = useState(Product_Data);
+  const [filteredProducts, setFilteredProducts] = useState([]);  // For displaying filtered data
+  const [allProducts, setAllProducts] = useState([]);  // For storing the original unfiltered data
+  const [newProduct, setNewProduct] = useState({ name: "" });
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
-  const [newProduct, setNewProduct] = useState({ parameterName: "" });
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [errorMessage, setErrorMessage] = useState("");  
 
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  useEffect(() => {
+    const fetchParameters = async () => {
+      try {
+        const response = await getAllParameters();
+        setAllProducts(response.data);
+        setFilteredProducts(response.data);  // Set both filtered and all products
+      } catch (error) {
+        console.error("Error fetching parameters:", error);
+      }
+    };
+    fetchParameters();
+  }, []);
 
+  // Handle search input
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-    const filtered = Product_Data.filter((product) =>
-      product.parameterName.toLowerCase().includes(term)
+    const filtered = allProducts.filter((product) =>
+      product.name.toLowerCase().includes(term)
     );
     setFilteredProducts(filtered);
-    setCurrentPage(1);
   };
 
-  const handleEdit = (index) => {
-    setEditIndex(index);
-    setEditModalOpen(true);
-  };
-
-  const handleDelete = (index) => {
-    const updatedProducts = filteredProducts.filter((_, i) => i !== index);
-    setFilteredProducts(updatedProducts);
-  };
-
-  const handleAdd = () => {
-    setFilteredProducts([newProduct, ...filteredProducts]);
-    setAddModalOpen(false);
-    setNewProduct({ parameterName: "" });
-  };
-
-  const handleSave = () => {
-    if (editIndex === null) return;
-    const updatedProducts = [...filteredProducts];
-    updatedProducts[editIndex] = { ...filteredProducts[editIndex], ...newProduct };
-    setFilteredProducts(updatedProducts);
-    setEditModalOpen(false);
-    setEditIndex(null);
-  };
-
-  const paginate = (direction) => {
-    if (direction === "next" && currentPage < totalPages) {
-      setCurrentPage((prev) => prev + 1);
-    } else if (direction === "prev" && currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
+  // Handle Add Product
+  const handleAdd = async () => {
+    try {
+      await createParameter(newProduct);  
+      setAllProducts([{...newProduct, status: "active"}, ...allProducts]);  // Add to allProducts
+      setFilteredProducts([{...newProduct, status: "active"}, ...filteredProducts]);  // Update the filtered list as well
+      setAddModalOpen(false);
+      setNewProduct({ name: "" });
+    } catch (error) {
+      setErrorMessage(error.message);
+      alert(error.message);
     }
   };
 
-  const getCurrentPageProducts = () => {
-    const start = (currentPage - 1) * itemsPerPage;
-    return filteredProducts.slice(start, start + itemsPerPage);
+  // Handle Edit
+  const handleEdit = (index) => {
+    setEditIndex(index);
+    setNewProduct({ name: filteredProducts[index].name });  // Populate newProduct with current data for editing
+    setEditModalOpen(true);
   };
 
-  const Table = ({
-    headers,
-    data,
-    customStyles = {},
-    actions,
-    showSerialNumber = false,
-  }) => {
-    return (
-      <div className="overflow-x-auto">
-        <table className={`min-w-full table-auto divide-y divide-gray-600 ${customStyles.table}`}>
-          <thead>
-            <tr>
-              {showSerialNumber && (
-                <th className={`px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider ${customStyles.header}`}>
-                  S.No
-                </th>
-              )}
-              {headers.map((header, index) => (
-                <th key={index} className={`px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider ${customStyles.header}`}>
-                  {header}
-                </th>
-              ))}
-              {actions && <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium">Actions</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {data.length > 0 ? (
-              data.map((row, rowIndex) => {
-                const serialNumber = (currentPage - 1) * itemsPerPage + rowIndex + 1;
-                return (
-                  <tr key={rowIndex} className={`${rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
-                    {showSerialNumber && <td className={`px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm ${customStyles.cell}`}>{serialNumber}</td>}
-                    {Object.values(row).map((cell, cellIndex) => (
-                      <td key={cellIndex} className={`px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm ${customStyles.cell}`}>{cell}</td>
-                    ))}
-                    {actions && <td className="px-4 py-2 text-gray-700 border-b">{actions(row, rowIndex)}</td>}
-                  </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan={headers.length + (showSerialNumber ? 1 : 0) + (actions ? 1 : 0)} className="text-center py-4 text-gray-500 text-xs sm:text-sm">
-                  No data available
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    );
+  // Handle Save After Editing
+  const handleSave = async () => {
+    if (editIndex === null) return;
+
+    const updatedProducts = [...filteredProducts];
+    updatedProducts[editIndex] = { ...updatedProducts[editIndex], ...newProduct };
+
+    try {
+      await updateParameter(filteredProducts[editIndex]._id, updatedProducts[editIndex]); 
+      setAllProducts(updatedProducts);  // Update allProducts
+      setFilteredProducts(updatedProducts);  // Update filtered list
+      setEditModalOpen(false);
+      setEditIndex(null);
+    } catch (error) {
+      setErrorMessage(error.message);
+      alert(error.message);
+    }
   };
 
-  const headers = ["Parameter Name"];
+  // Handle Delete
+  const handleDelete = async (index) => {
+    try {
+      await deleteParameter(filteredProducts[index]._id); 
+      const updatedProducts = filteredProducts.filter((_, i) => i !== index);
+      setAllProducts(updatedProducts);  // Update allProducts
+      setFilteredProducts(updatedProducts);  // Update filtered list
+    } catch (error) {
+      setErrorMessage(error.message);
+      alert(error.message);
+    }
+  };
 
-  const actions = (row, index) => (
-    <div className="flex gap-2">
-      <button onClick={() => handleEdit(index)} className="text-blue-500 hover:text-blue-700">
-        <Edit size={18} />
-      </button>
-      <button onClick={() => handleDelete(index)} className="text-red-500 hover:text-red-700">
-        <Trash2 size={18} />
-      </button>
-    </div>
-  );
+  // Toggle the status of a parameter
+  const handleStatusToggle = async (index) => {
+    try {
+      const product = allProducts[index];
+      product.status = product.status === "active" ? "deactive" : "active"; 
+      await updateParameter(product._id, product);  
+      const updatedProducts = filteredProducts.map((pro) =>
+        pro._id === product._id ? product : pro
+      );
+      setAllProducts(updatedProducts);  // Update allProducts
+      setFilteredProducts(updatedProducts);  // Update filtered list
+    } catch (error) {
+      setErrorMessage(error.message);
+      alert(error.message);
+    }
+  };
 
   return (
     <motion.div className="mt-12 bg-white rounded-md shadow-md mx-auto section p-5 relative z-10"
       initial={{ opacity: 0, y: 25 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, delay: 0.2 }}>
+      
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-black">Measurement List</h2>
         <div className="relative flex items-center">
@@ -156,36 +132,52 @@ const Measurement = () => {
           Add Measurement
         </button>
       </div>
-      <Table
-        headers={headers}
-        data={getCurrentPageProducts()}
-        customStyles={{
-          table: "",
-          header: "text-sm",
-          cell: "text-sm",
-        }}
-        actions={(row, index) => actions(row, index)}
-        showSerialNumber={true}
-      />
-      <div className="flex justify-between mt-4">
-        <div className="flex items-center">
-          <button
-            onClick={() => paginate("prev")}
-            disabled={currentPage === 1}
-            className="px-3 py-1 border rounded-md">
-            <ChevronLeft size={18} />
-          </button>
-          <span className="mx-2">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={() => paginate("next")}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 border rounded-md">
-            <ChevronRight size={18} />
-          </button>
-        </div>
-        <span>Total Measurements: {filteredProducts.length}</span>
+
+      {/* Custom Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full table-auto divide-y divide-gray-600">
+          <thead>
+            <tr>
+              <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">S.No</th>
+              <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">Parameter Name</th>
+              <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">Status</th>
+              <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((row, index) => (
+                <tr key={index} className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
+                  <td className="px-4 py-2 text-gray-700 border-b">{index + 1}</td>
+                  <td className="px-4 py-2 text-gray-700 border-b">{row.name}</td>
+                  <td className="px-4 py-2 text-gray-700 border-b">
+                    <Switch
+                      checked={row.status === "active"}
+                      onChange={() => handleStatusToggle(index)}
+                      color="primary"
+                    />
+                  </td>
+                  <td className="px-4 py-2 text-gray-700 border-b">
+                    <div className="flex gap-2">
+                      <button onClick={() => handleEdit(index)} className="text-blue-500 hover:text-blue-700">
+                        <Edit size={18} />
+                      </button>
+                      <button onClick={() => handleDelete(index)} className="text-red-500 hover:text-red-700">
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={4} className="text-center py-4 text-gray-500 text-xs sm:text-sm">
+                  No data available
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
       {/* Add Modal */}
@@ -196,10 +188,9 @@ const Measurement = () => {
           onSubmit={handleAdd}
           inputs={[{
             label: "Parameter Name",
-            value: newProduct.parameterName,
-            onChange: (e) => setNewProduct({ ...newProduct, parameterName: e.target.value }),
-          }]}
-        />
+            value: newProduct.name,
+            onChange: (e) => setNewProduct({ ...newProduct, name: e.target.value }),
+          }]}/>
       )}
 
       {/* Edit Modal */}
@@ -210,14 +201,9 @@ const Measurement = () => {
           onSubmit={handleSave}
           inputs={[{
             label: "Parameter Name",
-            value: filteredProducts[editIndex]?.parameterName,
-            onChange: (e) => {
-              const updatedProducts = [...filteredProducts];
-              updatedProducts[editIndex].parameterName = e.target.value;
-              setFilteredProducts(updatedProducts);
-            },
-          }]}
-        />
+            value: newProduct.name,
+            onChange: (e) => setNewProduct({ ...newProduct, name: e.target.value }),
+          }]}/>
       )}
     </motion.div>
   );

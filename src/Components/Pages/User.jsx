@@ -1,120 +1,106 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Edit, Search, Trash2, ChevronLeft, ChevronRight, X } from "lucide-react";
-
-const Product_Data = [
-    {
-        id: 1,
-        fullName: "Jayant Vyas",
-        address: "SINGH POL KI GHATI",
-        city: "JODHPUR",
-        gender: "Male",
-        email: "jayantvyas07@gmail.com",
-        mobile: "933980809"
-    },
-    {
-        id: 2,
-        fullName: "Aayushi Vyas",
-        address: "Greenfield 3 F -303 Vasna - Bhayli Main Rd, near Waves Club & Bright Day School, Bhayli, Vadodara, Gujarat",
-        city: "Vadodara",
-        gender: "Female",
-        email: "Aayushijoshi908@gmail.com",
-        mobile: "894028173"
-    },
-    {
-        id: 3,
-        fullName: "Nitin Parmar",
-        address: "104, Rajat Mansion",
-        city: "MUMBAI",
-        gender: "Male",
-        email: "nitinprmr4@gmail.com",
-        mobile: "894028173"
-    },
-];
+import { getAllTailors, createTailor, deleteTailor, updateTailor } from "../../apis/tailorApi"; // Assuming API functions are set up
 
 const User = () => {
     const [searchTerm, setSearchTerm] = useState("");
-    const [filteredProducts, setFilteredProducts] = useState(Product_Data);
+    const [filteredTailors, setFilteredTailors] = useState([]);
+    const [tailors, setTailors] = useState([]);
     const [isEditModalOpen, setEditModalOpen] = useState(false);
     const [isAddModalOpen, setAddModalOpen] = useState(false);
-    const [editProduct, setEditProduct] = useState(null);
-    const [newProduct, setNewProduct] = useState({
-        fullName: "",
+    const [editTailor, setEditTailor] = useState(null);
+    const [newTailor, setNewTailor] = useState({
+        name: "",
         address: "",
         city: "",
         gender: "",
         email: "",
-        mobile: ""
+        phone: "",
     });
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
-    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+    useEffect(() => {
+        getAllTailors().then((res) => {
+            setTailors(res.data);
+            setFilteredTailors(res.data);
+        }).catch((err) => {
+            console.log(err);
+        });
+    }, []);
+
+    const totalPages = Math.ceil(filteredTailors.length / itemsPerPage);
 
     const SearchHandler = (e) => {
         const term = e.target.value.toLowerCase();
         setSearchTerm(term);
-        const filtered = Product_Data.filter((product) =>
-            product.fullName.toLowerCase().includes(term) ||
-            product.address.toLowerCase().includes(term) ||
-            product.city.toLowerCase().includes(term)
+        const filtered = tailors.filter((tailor) =>
+            tailor.name.toLowerCase().includes(term) ||
+            tailor.address.toLowerCase().includes(term) ||
+            tailor.city.toLowerCase().includes(term)
         );
-        setFilteredProducts(filtered);
+        setFilteredTailors(filtered);
         setCurrentPage(1);
     };
 
-    const handleEdit = (product) => {
-        setEditProduct(product);
+    const handleEdit = (tailor) => {
+        setEditTailor(tailor);
         setEditModalOpen(true);
     };
 
-    const handleDelete = (productId) => {
-        const updatedProducts = filteredProducts.filter(
-            (product) => product.id !== productId
-        );
-        setFilteredProducts(updatedProducts);
+    const handleDelete = (tailorId) => {
+        deleteTailor(tailorId).then(() => {
+            const updatedTailors = filteredTailors.filter(tailor => tailor._id !== tailorId);
+            setFilteredTailors(updatedTailors);
+        }).catch((err) => {
+            console.log(err);
+        });
     };
 
     const handleAdd = () => {
-        const newId =
-            filteredProducts.length > 0
-                ? Math.max(...filteredProducts.map((product) => product.id)) + 1
-                : 1;
-        const productToAdd = { id: newId, ...newProduct };
-        setFilteredProducts([productToAdd, ...filteredProducts]);
-        setAddModalOpen(false);
-        setNewProduct({
-            fullName: "",
-            address: "",
-            city: "",
-            gender: "",
-            email: "",
-            mobile: ""
+        createTailor(newTailor).then((res) => {
+            setFilteredTailors([res.data, ...filteredTailors]);
+            setAddModalOpen(false);
+            setNewTailor({
+                name: "",
+                address: "",
+                city: "",
+                gender: "",
+                email: "",
+                phone: "",
+            });
+        }).catch((err) => {
+            console.log(err);
         });
     };
 
     const handleSave = () => {
-        const updatedProducts = filteredProducts.map((product) =>
-            product.id === editProduct.id ? editProduct : product
-        );
-        setFilteredProducts(updatedProducts);
-        setEditModalOpen(false);
+        updateTailor(editTailor._id, editTailor).then((res) => {
+            const updatedTailors = filteredTailors.map((tailor) =>
+                tailor._id === editTailor._id ? res.data : tailor
+            );
+            setFilteredTailors(updatedTailors);
+            setEditModalOpen(false);
+        }).catch((err) => {
+            console.log(err);
+        });
     };
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
-    const getCurrentPageProducts = () => {
+    const getCurrentPageTailors = () => {
         const start = (currentPage - 1) * itemsPerPage;
-        return filteredProducts.slice(start, start + itemsPerPage);
+        return filteredTailors.slice(start, start + itemsPerPage);
     };
 
     const headers = [
-        "S .No",
-        "Full Name",
+        "S. No",
+        "Name",
         "Address",
         "City",
         "Gender",
         "Email",
-        "Mobile"
+        "Phone"
     ];
 
     const actions = (row) => (
@@ -126,7 +112,7 @@ const User = () => {
                 <Edit size={18} />
             </button>
             <button
-                onClick={() => handleDelete(row.id)}
+                onClick={() => handleDelete(row._id)}
                 className="text-red-500 hover:text-red-700"
             >
                 <Trash2 size={18} />
@@ -174,29 +160,28 @@ const User = () => {
                             >
                                 {header}
                             </th>
-
                         ))}
-                         {actions && <th className="px-4  py-3 text-left text-xs sm:text-sm font-medium">Actions</th>}
+                        <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {getCurrentPageProducts().map((item, index) => (
-                        <tr key={item.id}>
+                    {getCurrentPageTailors().map((item, index) => (
+                        <tr key={item._id}>
                             <td className="border-b px-4 py-2">{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                            <td className="border-b px-4 py-2">{item.fullName}</td>
-                            <td className="border-b px-4  truncate ... py-2">{item.address.slice(0, 10)}</td>
+                            <td className="border-b px-4 py-2">{item.name}</td>
+                            <td className="border-b px-4 py-2">{item.address?.slice(0, 10)}...</td>
                             <td className="border-b px-4 py-2">{item.city}</td>
                             <td className="border-b px-4 py-2">{item.gender}</td>
                             <td className="border-b px-4 py-2">{item.email}</td>
-                            <td className="border-b px-4 py-2">{item.mobile}</td>
+                            <td className="border-b px-4 py-2">{item.phone}</td>
                             <td className="border-b px-4 py-2">{actions(item)}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
 
-            <div className='flex flex-col md:flex-row justify-between mt-4 space-x-2 items-center'>
-                <div className='flex items-center'>
+            <div className="flex flex-col md:flex-row justify-between mt-4 space-x-2 items-center">
+                <div className="flex items-center">
                     <button
                         onClick={() => paginate(currentPage - 1)}
                         disabled={currentPage === 1}
@@ -204,7 +189,7 @@ const User = () => {
                     >
                         <ChevronLeft size={18} />
                     </button>
-                    <span className='mx-2 text-sm font-medium'>Page {currentPage} of {totalPages}</span>
+                    <span className="mx-2 text-sm font-medium">Page {currentPage} of {totalPages}</span>
                     <button
                         onClick={() => paginate(currentPage + 1)}
                         disabled={currentPage === totalPages}
@@ -213,231 +198,169 @@ const User = () => {
                         <ChevronRight size={18} />
                     </button>
                 </div>
-                <div className='text-sm font-medium tracking-wider mt-5 md:mt-0'>Total Tailors: {filteredProducts.length}</div>
+                <div className="text-sm font-medium tracking-wider mt-5 md:mt-0">Total Tailors: {filteredTailors.length}</div>
             </div>
 
             {/* Add Modal */}
             {isAddModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
                     <motion.div
-                        className='bg-white rounded-lg shadow-lg p-6 max-w-3xl relative w-full'
+                        className="bg-white rounded-lg shadow-lg p-6 max-w-3xl relative w-full"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ duration: 0.3 }}
                     >
-                        <h2 className="text-lg font-semibold mb-4">Add User</h2>
+                        <h2 className="text-lg font-semibold mb-4">Add Tailor</h2>
                         <button
                             onClick={() => setAddModalOpen(false)}
                             className="absolute top-2 right-2 text-red-500"
                         >
                             <X size={20} />
                         </button>
-                        <form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                handleAdd();
-                            }}
-                        >
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Full Name</label>
-                                    <input
-                                        type="text"
-                                        value={newProduct.fullName}
-                                        onChange={(e) =>
-                                            setNewProduct({ ...newProduct, fullName: e.target.value })
-                                        }
-                                        className="w-full border rounded px-3 py-2"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Address</label>
-                                    <input
-                                        type="text"
-                                        value={newProduct.address}
-                                        onChange={(e) =>
-                                            setNewProduct({ ...newProduct, address: e.target.value })
-                                        }
-                                        className="w-full border rounded px-3 py-2"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">City</label>
-                                    <input
-                                        type="text"
-                                        value={newProduct.city}
-                                        onChange={(e) =>
-                                            setNewProduct({ ...newProduct, city: e.target.value })
-                                        }
-                                        className="w-full border rounded px-3 py-2"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Gender</label>
-                                    <select
-                                        value={newProduct.gender}
-                                        onChange={(e) =>
-                                            setNewProduct({ ...newProduct, gender: e.target.value })
-                                        }
-                                        className="w-full border rounded px-3 py-2"
-                                        required
-                                    >
-                                        <option value="">Select Gender</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Email</label>
-                                    <input
-                                        type="email"
-                                        value={newProduct.email}
-                                        onChange={(e) =>
-                                            setNewProduct({ ...newProduct, email: e.target.value })
-                                        }
-                                        className="w-full border rounded px-3 py-2"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Mobile Number</label>
-                                    <input
-                                        type="tel"
-                                        value={newProduct.mobile}
-                                        onChange={(e) =>
-                                            setNewProduct({ ...newProduct, mobile: e.target.value })
-                                        }
-                                        className="w-full border rounded px-3 py-2"
-                                        required
-                                    />
-                                </div>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium">Name</label>
+                                <input
+                                    type="text"
+                                    className="w-full px-4 py-2 border rounded-md"
+                                    value={newTailor.name}
+                                    onChange={(e) => setNewTailor({ ...newTailor, name: e.target.value })}
+                                />
                             </div>
-                            <div className="mt-1 flex justify-end">
-                                <button
-                                    type="submit"
-                                    className="bg-primary text-white font-medium px-4 py-2 rounded"
-                                >
-                                    Add
-                                </button>
+                            <div>
+                                <label className="block text-sm font-medium">Address</label>
+                                <input
+                                    type="text"
+                                    className="w-full px-4 py-2 border rounded-md"
+                                    value={newTailor.address}
+                                    onChange={(e) => setNewTailor({ ...newTailor, address: e.target.value })}
+                                />
                             </div>
-                        </form>
+                            <div>
+                                <label className="block text-sm font-medium">City</label>
+                                <input
+                                    type="text"
+                                    className="w-full px-4 py-2 border rounded-md"
+                                    value={newTailor.city}
+                                    onChange={(e) => setNewTailor({ ...newTailor, city: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium">Gender</label>
+                                <input
+                                    type="text"
+                                    className="w-full px-4 py-2 border rounded-md"
+                                    value={newTailor.gender}
+                                    onChange={(e) => setNewTailor({ ...newTailor, gender: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium">Email</label>
+                                <input
+                                    type="email"
+                                    className="w-full px-4 py-2 border rounded-md"
+                                    value={newTailor.email}
+                                    onChange={(e) => setNewTailor({ ...newTailor, email: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium">Phone</label>
+                                <input
+                                    type="text"
+                                    className="w-full px-4 py-2 border rounded-md"
+                                    value={newTailor.phone}
+                                    onChange={(e) => setNewTailor({ ...newTailor, phone: e.target.value })}
+                                />
+                            </div>
+                            <button
+                                onClick={handleAdd}
+                                className="w-full bg-primary py-2 text-white rounded-md"
+                            >
+                                Add Tailor
+                            </button>
+                        </div>
                     </motion.div>
                 </div>
             )}
 
             {/* Edit Modal */}
-            {isEditModalOpen && (
+            {isEditModalOpen && editTailor && (
                 <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
                     <motion.div
-                        className='bg-white rounded-lg shadow-lg p-6 max-w-3xl relative w-full'
+                        className="bg-white rounded-lg shadow-lg p-6 max-w-3xl relative w-full"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ duration: 0.3 }}
                     >
-                        <h2 className="text-lg font-semibold mb-4">Edit User</h2>
+                        <h2 className="text-lg font-semibold mb-4">Edit Tailor</h2>
                         <button
                             onClick={() => setEditModalOpen(false)}
                             className="absolute top-2 right-2 text-red-500"
                         >
                             <X size={20} />
                         </button>
-                        <form
-                           onSubmit={(e) => {
-                            e.preventDefault();
-                                handleSave();
-                            }}
-                        >
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Full Name</label>
-                                    <input
-                                        type="text"
-                                        value={editProduct.fullName}
-                                        onChange={(e) =>
-                                            setEditProduct({ ...editProduct, fullName: e.target.value })
-                                        }
-                                        className="w-full border rounded px-3 py-2"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Address</label>
-                                    <input
-                                        type="text"
-                                        value={editProduct.address}
-                                        onChange={(e) =>
-                                            setEditProduct({ ...editProduct, address: e.target.value })
-                                        }
-                                        className="w-full border rounded px-3 py-2"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">City</label>
-                                    <input
-                                        type="text"
-                                        value={editProduct.city}
-                                        onChange={(e) =>
-                                            setEditProduct({ ...editProduct, city: e.target.value })
-                                        }
-                                        className="w-full border rounded px-3 py-2"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Gender</label>
-                                    <select
-                                        value={editProduct.gender}
-                                        onChange={(e) =>
-                                            setEditProduct({ ...editProduct, gender: e.target.value })
-                                        }
-                                        className="w-full border rounded px-3 py-2"
-                                        required
-                                    >
-                                        <option value="">Select Gender</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Email</label>
-                                    <input
-                                        type="email"
-                                        value={editProduct.email}
-                                        onChange={(e) =>
-                                            setEditProduct({ ...editProduct, email: e.target.value })
-                                        }
-                                        className="w-full border rounded px-3 py-2"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Mobile Number</label>
-                                    <input
-                                        type="tel"
-                                        value={editProduct.mobile}
-                                        onChange={(e) =>
-                                            setEditProduct({ ...editProduct, mobile: e.target.value })
-                                        }
-                                        className="w-full border rounded px-3 py-2"
-                                        required
-                                    />
-                                </div>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium">Name</label>
+                                <input
+                                    type="text"
+                                    className="w-full px-4 py-2 border rounded-md"
+                                    value={editTailor.name}
+                                    onChange={(e) => setEditTailor({ ...editTailor, name: e.target.value })}
+                                />
                             </div>
-                            <div className="mt-1 flex justify-end">
-                                <button
-                                    type="submit"
-                                    className="bg-primary text-white font-medium px-4 py-2 rounded hover:bg-green-600"
-                                >
-                                    Save
-                                </button>
+                            <div>
+                                <label className="block text-sm font-medium">Address</label>
+                                <input
+                                    type="text"
+                                    className="w-full px-4 py-2 border rounded-md"
+                                    value={editTailor.address}
+                                    onChange={(e) => setEditTailor({ ...editTailor, address: e.target.value })}
+                                />
                             </div>
-                        </form>
+                            <div>
+                                <label className="block text-sm font-medium">City</label>
+                                <input
+                                    type="text"
+                                    className="w-full px-4 py-2 border rounded-md"
+                                    value={editTailor.city}
+                                    onChange={(e) => setEditTailor({ ...editTailor, city: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium">Gender</label>
+                                <input
+                                    type="text"
+                                    className="w-full px-4 py-2 border rounded-md"
+                                    value={editTailor.gender}
+                                    onChange={(e) => setEditTailor({ ...editTailor, gender: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium">Email</label>
+                                <input
+                                    type="email"
+                                    className="w-full px-4 py-2 border rounded-md"
+                                    value={editTailor.email}
+                                    onChange={(e) => setEditTailor({ ...editTailor, email: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium">Phone</label>
+                                <input
+                                    type="text"
+                                    className="w-full px-4 py-2 border rounded-md"
+                                    value={editTailor.phone}
+                                    onChange={(e) => setEditTailor({ ...editTailor, phone: e.target.value })}
+                                />
+                            </div>
+                            <button
+                                onClick={handleSave}
+                                className="w-full bg-primary py-2 text-white rounded-md"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
                     </motion.div>
                 </div>
             )}

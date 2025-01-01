@@ -59,7 +59,7 @@ const App = () => {
             <Route path="/type-size" element={<SizeType />} />
             <Route path="/order-project" element={<OrderProject />} />
             <Route path="/query" element={<Query />} />
-            <Route path="/student" element={<Student />} />
+            <Route path="/student/:orderId" element={<Student />} />
             <Route path="/mapping" element={<Mapping />} />
 
             <Route path="/tailorlogs" element={<TailorLogs />} />

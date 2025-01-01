@@ -1,41 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Edit, Search, Trash2, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { Upload } from "lucide-react"; // Import the Upload icon
-import { useNavigate } from "react-router-dom";
-import Mapping from "./Mapping";
-
-const Product_Data = [
-    { id: 1, SizeName: "6", type: "t-Shirt" },
-    { id: 2, SizeName: "4", type: "shirt" },
-    { id: 3, SizeName: "6", type: "t-Shirt" },
-];
+import { Edit, Search, Trash2, ChevronLeft, ChevronRight, X, Upload } from "lucide-react";
+import { Switch } from "@mui/material";
+import { createSize, getAllSizes, updateSize, deleteSize } from "../../apis/sizeApi";
+import Mapping from '../Pages/Mapping';
 
 const SizeType = () => {
     const [searchTerm, setSearchTerm] = useState("");
-    const [filteredProducts, setFilteredProducts] = useState(Product_Data);
+    const [sizes, setSizes] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState([]);
     const [isEditModalOpen, setEditModalOpen] = useState(false);
     const [isAddModalOpen, setAddModalOpen] = useState(false);
     const [editProduct, setEditProduct] = useState(null);
-    const [newProduct, setNewProduct] = useState({ SizeName: "", type: "" });
+    const [newProduct, setNewProduct] = useState({ name: "" });
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
     const [isMapping, setIsMapping] = useState(false);
-    const [mappingProduct, setMappingProduct] = useState({ SizeName: "", type: "" });
-    const [mappedProducts, setMappedProducts] = useState([]); // New state for mapped products
+    const [mappingProduct, setMappingProduct] = useState();
+    const [mappedProducts, setMappedProducts] = useState([]);
     const [uploadedFileName, setUploadedFileName] = useState("");
 
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
+    const fetchData = async () => {
+        try {
+            const response = await getAllSizes();  // Fetch all sizes
+            setSizes(response.data);
+            setFilteredProducts(response.data);  // Initially set filtered products to all sizes
+        } catch (error) {
+            console.error("Error fetching sizes", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
     const SearchHandler = (e) => {
         const term = e.target.value.toLowerCase();
         setSearchTerm(term);
-        const filtered = Product_Data.filter((product) =>
-            product.SizeName.toLowerCase().includes(term) ||
-            product.type.toLowerCase().includes(term)
-        );
-        setFilteredProducts(filtered);
-        setCurrentPage(1);
+
+        if (term === "") {
+            // If search term is empty, show all sizes
+            setFilteredProducts(sizes);
+        } else {
+            // Apply filter based on search term
+            const filtered = sizes.filter((product) =>
+                product.name.toLowerCase().includes(term)
+            );
+            setFilteredProducts(filtered);
+        }
+        setCurrentPage(1); // Reset to first page after search
     };
 
     const handleEdit = (product) => {
@@ -43,72 +58,69 @@ const SizeType = () => {
         setEditModalOpen(true);
     };
 
-    const handleDelete = (productId) => {
-        const updatedProducts = filteredProducts.filter(
-            (product) => product.id !== productId
-        );
-        setFilteredProducts(updatedProducts);
-    };
-
-    const handleAdd = () => {
-        const newId =
-            filteredProducts.length > 0
-                ? Math.max(...filteredProducts.map((product) => product.id)) + 1
-                : 1;
-        const productToAdd = { ...newProduct, id: newId };
-        setFilteredProducts([productToAdd, ...filteredProducts]);
-        setAddModalOpen(false);
-        setNewProduct({ SizeName: "", type: "" });
-    };
-
-    const handleSave = () => {
-        const updatedProducts = filteredProducts.map((product) =>
-            product.id === editProduct.id ? editProduct : product
-        );
-        setFilteredProducts(updatedProducts);
-        setEditModalOpen(false);
-    };
-
-    const handleMappingAdd = () => {
-        if (mappingProduct?.additionalParam) {
-          setMappedProducts((prev) => [
-            ...prev,
-            { parameter: mappingProduct.additionalParam },
-          ]);
+    const handleDelete = async (productId) => {
+        try {
+            await deleteSize(productId);  // Delete a size
+            setFilteredProducts(filteredProducts.filter((product) => product.id !== productId));
+        } catch (error) {
+            console.error("Error deleting size", error);
         }
-      };
-      const handleParaEdit = (index) => {
-        const itemToEdit = mappedProducts[index];
-        // Logic to edit the parameter (e.g., open an edit form/modal)
-      };
-      
-      const handleParaDelete = (index) => {
-        const updatedProducts = mappedProducts.filter((_, i) => i !== index);
-        setMappedProducts(updatedProducts);
-      };
-      
-    const navigate = useNavigate();
+    };
+
+    const handleAdd = async () => {
+        try {
+            const data = await createSize(newProduct);  // Add a new size
+            fetchData();  // Refresh data after adding new size
+            setAddModalOpen(false);
+            setNewProduct({ name: "" });
+        } catch (error) {
+            console.error("Error adding size", error);
+        }
+    };
+
+    const handleSave = async () => {
+        try {
+            const data = await updateSize(editProduct.id, editProduct);  // Update a size
+            setFilteredProducts(
+                filteredProducts.map((product) =>
+                    product.id === editProduct.id ? data : product
+                )
+            );
+            setEditModalOpen(false);
+        } catch (error) {
+            console.error("Error saving size", error);
+        }
+    };
+
+    const toggleStatus = async (productId) => {
+        try {
+            const data = filteredProducts.find(data => data._id === productId);
+            await updateSize(productId, { ...data, status: data.status === 'active' ? 'inactive' : 'active' });
+            const updatedProducts = filteredProducts.map(product =>
+                product._id === productId ? { ...product, status: product.status === 'active' ? 'inactive' : 'active' } : product
+            );
+            setFilteredProducts(updatedProducts);
+        } catch (error) {
+            console.error(error);
+            alert('Error saving changes.');
+        }
+    };
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
     const getCurrentPageProducts = () => {
         const start = (currentPage - 1) * itemsPerPage;
         return filteredProducts.slice(start, start + itemsPerPage);
     };
 
-    const headers = ["S.No", "Size Name", "Type"];
+    const headers = ["S.No", "Size Name", "status"];
 
     const actions = (row) => (
         <div className="flex gap-2">
-            <button
-                onClick={() => handleEdit(row)}
-                className="text-blue-500 hover:text-blue-700"
-            >
+            <button onClick={() => handleEdit(row)} className="text-blue-500 hover:text-blue-700">
                 <Edit size={18} />
             </button>
-            <button
-                onClick={() => handleDelete(row.id)}
-                className="text-red-500 hover:text-red-700"
-            >
+            <button onClick={() => handleDelete(row.id)} className="text-red-500 hover:text-red-700">
                 <Trash2 size={18} />
             </button>
         </div>
@@ -118,7 +130,6 @@ const SizeType = () => {
         <div className="flex items-center">
             <button
                 onClick={() => {
-                    
                     setMappingProduct(row); // Set the mapping product
                     setIsMapping(true); // Open the mapping modal
                 }}
@@ -132,8 +143,8 @@ const SizeType = () => {
     const handleBulkUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setUploadedFileName(file.name); // Display the file name
-            // Process the file here (e.g., parse CSV, send to the server)
+            setUploadedFileName(file.name);
+            // Add logic to parse and upload the file if needed
         }
     };
 
@@ -162,13 +173,10 @@ const SizeType = () => {
                             type="file"
                             id="bulkUpload"
                             accept=".csv, .xls, .xlsx"
-                            onChange={(e) => handleBulkUpload(e)}
+                            onChange={handleBulkUpload}
                             className="hidden"
                         />
-                        <label
-                            htmlFor="bulkUpload"
-                            className="text-black border border-gray-300 px-4 py-2 rounded-lg cursor-pointer flex items-center gap-2 hover:bg-gray-200"
-                        >
+                        <label htmlFor="bulkUpload" className="text-black border border-gray-300 px-4 py-2 rounded-lg cursor-pointer flex items-center gap-2 hover:bg-gray-200">
                             <Upload size={18} />
                             Bulk Upload
                         </label>
@@ -176,11 +184,8 @@ const SizeType = () => {
                     {uploadedFileName && (
                         <span className="text-sm text-gray-600">{uploadedFileName}</span>
                     )}
-                    <button
-                        onClick={() => setAddModalOpen(true)}
-                        className="bg-primary text-white font-medium px-4 py-2 rounded hover:bg-blue-700"
-                    >
-                        Add Size Type
+                    <button onClick={() => setAddModalOpen(true)} className="bg-primary text-white font-medium px-4 py-2 rounded hover:bg-blue-700">
+                        Add Size
                     </button>
                 </div>
             </div>
@@ -196,28 +201,24 @@ const SizeType = () => {
                             ))}
                             <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium">Actions</th>
                             <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium">Mapping</th>
-
                         </tr>
                     </thead>
                     <tbody>
-                        {getCurrentPageProducts().length > 0 ? (
-                            getCurrentPageProducts().map((row, rowIndex) => (
-                                <tr key={rowIndex} className={`${rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
-                                    <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{rowIndex + 1 + (currentPage - 1) * itemsPerPage}</td>
-                                    <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{row.SizeName}</td>
-                                    <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{row.type}</td>
-                                    <td className="px-4 py-2 text-gray-700 border-b">{actions(row)}</td>
-                                    <td className="px-4 py-2 text-gray-700 border-b">{mapping(row)}</td>
-
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan={headers.length + 1} className="text-center py-4 text-gray-500 text-xs sm:text-sm">
-                                    No data available
+                        {getCurrentPageProducts().map((row, index) => (
+                            <tr key={index} className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
+                                <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+                                <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{row.name}</td>
+                                <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">
+                                    <Switch
+                                        checked={row.status === 'active'}
+                                        onChange={() => toggleStatus(row._id)}
+                                        color="primary"
+                                    />
                                 </td>
+                                <td className="px-4 py-2 text-gray-700 border-b">{actions(row)}</td>
+                                <td className="px-4 py-2 text-gray-700 border-b">{mapping(row)}</td>
                             </tr>
-                        )}
+                        ))}
                     </tbody>
                 </table>
             </div>
@@ -229,7 +230,7 @@ const SizeType = () => {
                         disabled={currentPage === 1}
                         className={`px-3 py-1 border rounded-md ${currentPage === 1 ? "border-gray-400 text-gray-400" : "border-gray-300 hover:bg-gray-200"}`}
                     >
-                        <ChevronLeft size={18 } />
+                        <ChevronLeft size={18} />
                     </button>
                     <span className="mx-2 text-sm">Page {currentPage} of {totalPages}</span>
                     <button
@@ -243,62 +244,32 @@ const SizeType = () => {
                 <div className="text-sm">Total Sizes: {filteredProducts.length}</div>
             </div>
 
+            {/* Add Size Modal */}
             {isAddModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
                     <div className="bg-white relative p-6 rounded-lg w-3/5">
-                        <h2 className="text-lg font-semibold mb-4">Add Size Type</h2>
-                        <button
-                            onClick={() => setAddModalOpen(false)}
-                            className="absolute top-3 right-3 text-black"
-                        >
+                        <h2 className="text-lg font-semibold mb-4">Add Size</h2>
+                        <button onClick={() => setAddModalOpen(false)} className="absolute top-3 right-3 text-black">
                             <X size={26} />
                         </button>
-                        <form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                handleAdd();
-                            }}
-                        >
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            handleAdd();
+                        }}>
                             <div className="flex flex-col gap-4">
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Size Name</label>
                                     <input
                                         type="text"
-                                        value={newProduct.SizeName}
-                                        onChange={(e) =>
-                                            setNewProduct({
-                                                ...newProduct,
-                                                SizeName: e.target.value,
-                                            })
-                                        }
+                                        value={newProduct.name}
+                                        onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
                                         className="w-full border rounded px-3 py-2"
                                         required
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Size Type</label>
-                                    <select
-                                        value={newProduct.type}
-                                        onChange={(e) =>
-                                            setNewProduct({
-                                                ...newProduct,
-                                                type: e.target.value,
-                                            })
-                                        }
-                                        className="w-full border rounded px-3 py-2"
-                                        required
-                                    >
-                                        <option value="">Select Type</option>
-                                        <option value="t-Shirt">T-Shirt</option>
-                                        <option value="shirt">Shirt</option>
-                                    </select>
-                                </div>
                             </div>
                             <div className="mt-4 flex justify-end">
-                                <button
-                                    type="submit"
-                                    className="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700"
-                                >
+                                <button type="submit" className="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700">
                                     Add
                                 </button>
                             </div>
@@ -306,84 +277,53 @@ const SizeType = () => {
                     </div>
                 </div>
             )}
+
+            {/* Edit Size Modal */}
             {isEditModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
                     <div className="bg-white p-6 rounded-lg w-3/5 relative">
-                        <h2 className="text-lg font-semibold mb-4">Edit Size Type</h2>
-                        <button
-                            onClick={() => setEditModalOpen(false)}
-                            className="absolute top-3 right-3 text-black"
-                        >
+                        <h2 className="text-lg font-semibold mb-4">Edit Size</h2>
+                        <button onClick={() => setEditModalOpen(false)} className="absolute top-3 right-3 text-black">
                             <X size={20} />
                         </button>
-                        <form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                handleSave();
-                            }}
-                        >
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            handleSave();
+                        }}>
                             <div className="flex flex-col gap-4">
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Size Name</label>
                                     <input
                                         type="text"
-                                        value={editProduct?.SizeName || ""}
-                                        onChange={(e) =>
-                                            setEditProduct({
-                                                ...editProduct,
-                                                SizeName: e.target.value,
-                                            })
-                                        }
+                                        value={editProduct?.name || ""}
+                                        onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })}
                                         className="w-full border rounded px-3 py-2"
                                         required
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Size Type</label>
-                                    <select
-                                        value={editProduct?.type || ""}
-                                        onChange={(e) =>
-                                            setEditProduct({
-                                                ...editProduct,
-                                                type: e.target.value,
-                                            })
-                                        }
-                                        className="w-full border rounded px-3 py-2"
-                                        required
-                                    >
-                                        <option value="">Select Type</option>
-                                        <option value="t-Shirt">T-Shirt</option>
-                                        <option value="shirt">Shirt</option>
-                                    </select>
-                                </div>
                             </div>
                             <div className="mt-4 flex justify-end">
-                                <button
-                                    type="submit"
-                                    className=" bg-primary text-white px-4 py-2 rounded hover:bg-blue-700"
-                                >
-                                    Save Changes
+                                <button type="submit" className="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700">
+                                    Save
                                 </button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
-            {isMapping && (
-    <Mapping 
-        mappingProduct={mappingProduct} 
-        setIsMapping={setIsMapping}
-        mappedProducts={mappedProducts} 
-        setMappingProduct={setMappingProduct} 
-        handleMappingAdd={handleMappingAdd}
-        handleParaEdit={handleParaEdit}
-        handleParaDelete={handleParaDelete}
-    />
-)}
-            
 
+            {/* Mapping Modal */}
+            {isMapping && (
+                <Mapping
+                    product={mappingProduct}
+                    setIsMapping={setIsMapping}
+                    mappedProducts={mappedProducts}
+                    setProduct={setMappingProduct}
+                    setMappedProducts={setMappedProducts}
+                />
+            )}
         </motion.div>
     );
-};  
+};
 
 export default SizeType;
