@@ -96,10 +96,7 @@ const Branches = () => {
   const handleSave = () => {
     updateBranch(editProduct._id, editProduct)
       .then(() => {
-        const updatedProducts = filteredProducts.map((product) =>
-          product.id === editProduct.id ? editProduct : product
-        );
-        setFilteredProducts(updatedProducts);
+        fetchBranches()
         setEditModalOpen(false);
       })
       .catch((err) => console.log(err));
@@ -133,7 +130,7 @@ const Branches = () => {
     >
       <div className="flex flex-wrap justify-between text-black items-center mb-6">
         <h2 className="text-xl font-semibold text-black">Branch List</h2>
-        <div className="relative mt-4 sm:mt-0 sm:ml-4">
+        {/* <div className="relative mt-4 sm:mt-0 sm:ml-4">
           <select
             className="border rounded-lg py-2 px-4 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500"
             onChange={(e) => handleClientTypeChange(e.target.value)}
@@ -145,7 +142,7 @@ const Branches = () => {
               </option>
             ))}
           </select>
-        </div>
+        </div> */}
         <div className="relative flex items-center w-full sm:w-auto mt-4 sm:mt-0">
           <Search className="absolute left-3 text-gray-400 sm:left-2.5 top-2.5" size={20} />
           <input
@@ -170,7 +167,7 @@ const Branches = () => {
             <tr>
               <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">S.No</th>
               <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">Contact Name</th>
-              <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">Industry</th>
+              <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">Institution</th>
               <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">Address</th>
               <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">City</th>
               <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">Email</th>

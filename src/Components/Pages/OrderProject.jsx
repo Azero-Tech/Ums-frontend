@@ -228,15 +228,15 @@ const OrderProject = () => {
               {headers.map((header, index) => (
                 <th
                   key={index}
-                  className="px-4 py-2 text-left border-b font-semibold"
+                  className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider"
                 >
                   {header}
                 </th>
               ))}
-              <th className="px-4 py-2 text-left border-b font-semibold">
+              <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
                 Actions
               </th>
-              <th className="px-4 py-2 text-left border-b font-semibold">
+              <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
                 Student
               </th>
             </tr>

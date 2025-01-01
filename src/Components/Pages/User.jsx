@@ -60,7 +60,13 @@ const User = () => {
 
     const handleAdd = () => {
         createTailor(newTailor).then((res) => {
-            setFilteredTailors([res.data, ...filteredTailors]);
+            // setFilteredTailors([...filteredTailors,newTailor]);
+            getAllTailors().then((res) => {
+                setTailors(res.data);
+                setFilteredTailors(res.data);
+            }).catch((err) => {
+                console.log(err);
+            });
             setAddModalOpen(false);
             setNewTailor({
                 name: "",
@@ -156,12 +162,12 @@ const User = () => {
                         {headers.map((header, index) => (
                             <th
                                 key={index}
-                                className=" px-4 py-2 text-left font-semibold"
+                                className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider"
                             >
                                 {header}
                             </th>
                         ))}
-                        <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium">Actions</th>
+                        <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody>

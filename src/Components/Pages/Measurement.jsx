@@ -115,12 +115,12 @@ const Measurement = () => {
       transition={{ duration: 0.2, delay: 0.2 }}>
       
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-black">Measurement List</h2>
+        <h2 className="text-xl font-semibold text-black">Parameter List</h2>
         <div className="relative flex items-center">
           <Search className="absolute left-3 text-gray-400 top-2.5" size={20} />
           <input
             type="text"
-            placeholder="Search Measurement..."
+            placeholder="Search Parameter..."
             className="border rounded-lg pl-10 pr-4 py-2 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500"
             onChange={handleSearch}
             value={searchTerm}
@@ -129,7 +129,7 @@ const Measurement = () => {
         <button
           onClick={() => setAddModalOpen(true)}
           className="bg-primary font-medium text-white text-md px-4 py-2 rounded-md">
-          Add Measurement
+          Add Parameter
         </button>
       </div>
 
@@ -183,7 +183,7 @@ const Measurement = () => {
       {/* Add Modal */}
       {isAddModalOpen && (
         <Modal
-          title="Add Measurement"
+          title="Add Parameter"
           onClose={() => setAddModalOpen(false)}
           onSubmit={handleAdd}
           inputs={[{
@@ -196,7 +196,7 @@ const Measurement = () => {
       {/* Edit Modal */}
       {isEditModalOpen && editIndex !== null && (
         <Modal
-          title="Edit Measurement"
+          title="Edit Parameter"
           onClose={() => setEditModalOpen(false)}
           onSubmit={handleSave}
           inputs={[{

@@ -29,3 +29,8 @@ export const deleteOrderById = async (orderId) => {
     const response = await axiosInstance.delete(`/orders/${orderId}`);
     return response.data;
 };
+
+export const getAssignedTailor = async(tailorId)=>{
+    const response = await axiosInstance.get(`/orders/tailor/${tailorId}`)
+    return response.data
+}

@@ -106,7 +106,7 @@ const Clients = () => {
     >
       {/* Header Section */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">Industries</h2>
+        <h2 className="text-xl font-semibold">Institutions</h2>
         <div className="relative flex items-center">
           <Search className="absolute left-3 text-gray-400" size={20} />
           <input
@@ -121,7 +121,7 @@ const Clients = () => {
           onClick={() => setAddModalOpen(true)}
           className="bg-primary text-white font-medium px-4 py-2 rounded-md"
         >
-          Add Industry
+          Add Institution
         </button>
       </div>
 
@@ -129,10 +129,10 @@ const Clients = () => {
       <table className="min-w-full table-auto border-collapse">
         <thead>
           <tr className="border-b">
-            <th className="px-4 py-2 text-left font-semibold">S.No</th>
-            <th className="px-4 py-2 text-left font-semibold">Name</th>
-            <th className="px-4 py-2 text-left font-semibold">Industry</th>
-            <th className="px-4 py-2 text-left font-semibold">Actions</th>
+            <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">S.No</th>
+            <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">Name</th>
+            <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">Industry</th>
+            <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -192,14 +192,14 @@ const Clients = () => {
             <ChevronRight size={18} />
           </button>
         </div>
-        <div>Total Industries: {filteredIndustries.length}</div>
+        <div>Total Institutions: {filteredIndustries.length}</div>
       </div>
 
       {/* Add Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-md w-96 relative">
-            <h2 className="text-lg font-semibold mb-4">Add Industry</h2>
+            <h2 className="text-lg font-semibold mb-4">Add Institution</h2>
             <button
               onClick={() => setAddModalOpen(false)}
               className="absolute top-2 right-2 text-red-500"
@@ -245,7 +245,7 @@ const Clients = () => {
                 type="submit"
                 className="bg-primary text-white font-medium px-4 py-2 rounded-md"
               >
-                Add Industry
+                Add Institution
               </button>
             </form>
           </div>
@@ -256,7 +256,7 @@ const Clients = () => {
       {isEditModalOpen && editingIndustry && (
         <div className="fixed inset-0 bg-black bg-opacity-30 z-70 flex justify-center items-center">
           <div className="bg-white p-6 rounded-md w-96">
-            <h2 className="text-lg font-semibold mb-4">Edit Industry</h2>
+            <h2 className="text-lg font-semibold mb-4">Edit Institution</h2>
             <button
               onClick={() => setEditModalOpen(false)}
               className="absolute top-2 right-2 text-black"

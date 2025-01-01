@@ -19,3 +19,13 @@ export const logout = async(data)=>{
     const response = await axiosInstance.post('/logout',data)
     return response.data
 }
+
+export const adminDashboard = async()=>{
+    const response = await axiosInstance.get('/dashboard')
+    return response.data
+}
+
+export const tailorDashboard = async()=>{
+    const response = await axiosInstance.get('/tailor-dashboard')
+    return response.data
+}

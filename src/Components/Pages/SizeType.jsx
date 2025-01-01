@@ -113,7 +113,7 @@ const SizeType = () => {
         return filteredProducts.slice(start, start + itemsPerPage);
     };
 
-    const headers = ["S.No", "Size Name", "status"];
+    const headers = ["S.No", "Product Name", "status"];
 
     const actions = (row) => (
         <div className="flex gap-2">
@@ -156,7 +156,7 @@ const SizeType = () => {
             transition={{ duration: 0.2, delay: 0.2 }}
         >
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-black">Size Type List</h2>
+                <h2 className="text-xl font-semibold text-black">Products</h2>
                 <div className="relative flex items-center">
                     <Search className="absolute left-3 text-gray-400 top-2.5" size={20} />
                     <input
@@ -185,7 +185,7 @@ const SizeType = () => {
                         <span className="text-sm text-gray-600">{uploadedFileName}</span>
                     )}
                     <button onClick={() => setAddModalOpen(true)} className="bg-primary text-white font-medium px-4 py-2 rounded hover:bg-blue-700">
-                        Add Size
+                        Add Product
                     </button>
                 </div>
             </div>
@@ -241,14 +241,14 @@ const SizeType = () => {
                         <ChevronRight size={18} />
                     </button>
                 </div>
-                <div className="text-sm">Total Sizes: {filteredProducts.length}</div>
+                <div className="text-sm">Total Products : {filteredProducts.length}</div>
             </div>
 
             {/* Add Size Modal */}
             {isAddModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
                     <div className="bg-white relative p-6 rounded-lg w-3/5">
-                        <h2 className="text-lg font-semibold mb-4">Add Size</h2>
+                        <h2 className="text-lg font-semibold mb-4">Add Product</h2>
                         <button onClick={() => setAddModalOpen(false)} className="absolute top-3 right-3 text-black">
                             <X size={26} />
                         </button>
@@ -258,7 +258,7 @@ const SizeType = () => {
                         }}>
                             <div className="flex flex-col gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">Size Name</label>
+                                    <label className="block text-sm font-medium mb-1">Product Name</label>
                                     <input
                                         type="text"
                                         value={newProduct.name}
@@ -282,7 +282,7 @@ const SizeType = () => {
             {isEditModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
                     <div className="bg-white p-6 rounded-lg w-3/5 relative">
-                        <h2 className="text-lg font-semibold mb-4">Edit Size</h2>
+                        <h2 className="text-lg font-semibold mb-4">Edit Product</h2>
                         <button onClick={() => setEditModalOpen(false)} className="absolute top-3 right-3 text-black">
                             <X size={20} />
                         </button>
@@ -292,7 +292,7 @@ const SizeType = () => {
                         }}>
                             <div className="flex flex-col gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">Size Name</label>
+                                    <label className="block text-sm font-medium mb-1">Product Name</label>
                                     <input
                                         type="text"
                                         value={editProduct?.name || ""}
