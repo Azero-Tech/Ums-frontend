@@ -21,6 +21,9 @@ import Signup from './Components/UI/Signup';
 import Mapping from './Components/Pages/Mapping';
 import ProtectedRoute from './Components/ProtectedRoute';
 import TialorDhasboard from './Components/Tailor/TialorDhasboard';
+import Main from './Components/UI/Main';
+import Project from './Components/Tailor/Project';
+import ProductPage from './Components/Tailor/ProductPage';
  
 
 const App = () => {
@@ -34,14 +37,14 @@ const App = () => {
        
             </Routes>
     
-      <div className="flex h-screen bg-gray-50 text-black overflow-hidden">
+      <div>
 
         {/* Sidebar */}
-        <Sidebar />
+      
 
         {/* Main Content Area */}
-        <div className="flex-1 overflow-y-auto">
-          <Header />
+       
+        
 
           <Routes>
 
@@ -49,6 +52,7 @@ const App = () => {
             // element={
             //   <ProtectedRoute allowedRoles={["super-admin"]} />
             // }
+              path="/" element={<Main />} 
           >
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/clients" element={<ProductTable />} />
@@ -61,6 +65,8 @@ const App = () => {
             <Route path="/query" element={<Query />} />
             <Route path="/student" element={<Student />} />
             <Route path="/mapping" element={<Mapping />} />
+            <Route path="/project" element={<Project />} />
+            <Route path="/products/:id" element={<ProductPage />} />
 
             <Route path="/tailorlogs" element={<TailorLogs />} />
             </Route>
@@ -73,7 +79,7 @@ const App = () => {
             
             </Route>
           </Routes>
-        </div>
+        
       </div>
     </BrowserRouter>
   );

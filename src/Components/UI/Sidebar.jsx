@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Link, useLocation } from "react-router-dom";
-import {
-  FaTachometerAlt,
-  FaTools,
-  FaUser,
-  FaChevronDown,
-  FaChevronUp,
-} from "react-icons/fa";
-import { HiOutlineMenu } from "react-icons/hi";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   MdOutlineDashboard,
   MdOutlineSettings,
@@ -18,189 +9,213 @@ import {
   MdOutlineFactCheck,
 } from "react-icons/md";
 import { AiOutlineBranches, AiOutlineUsergroupAdd } from "react-icons/ai";
+import { FaAngleDown, FaSignOutAlt, FaPhoneAlt } from "react-icons/fa";
 import logo from "../../Assets/logo.jpeg";
+// import { useAuth } from "../context/AuthProvider";
 
-// Sidebar menu items configuration
-const SIDEBAR_ITEMS = [
-  { name: "Dashboard", href: "/dashboard", icon: <MdOutlineDashboard /> },
- 
-  { name: "Tailors", href: "/user", icon: <AiOutlineUsergroupAdd /> },
-  {
-    name: "Industrys",
-    href: "#",
-    icon: <AiOutlineBranches />,
-    subItems: [
-      { name: "industries List", href: "/client", icon: <MdOutlineListAlt /> },
-      { name: "Branches", href: "/branches", icon: <AiOutlineBranches /> },
-    ],
-  },
-  { name: "Order Project", href: "/order-project", icon: <MdOutlineFactCheck /> },
-  { name: "Query", href: "/query", icon: <MdOutlineQueryBuilder /> },
-  { name: "Tailor Session Log", href: "/tailorlogs", icon: <MdOutlineFactCheck /> },
-  { name: " Sizes", href: "/type-size", icon: <MdOutlineListAlt /> },
-
-  {
-    name: "Settings",
-    href: "#",
-    icon: <MdOutlineSettings />,
-    subItems: [
-      { name: "Industry Types", href: "/clients", icon: <MdOutlinePerson /> },
-      { name: "ParaMeter", href: "/measurement", icon: <MdOutlineQueryBuilder /> },
-    ],
-  },
-];
-
-// Dropdown Component
-const SidebarDropdown = ({ item, isOpen, toggleOpen, isSidebarOpen }) => {
+const  Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  // const { user, setLogin } = useAuth();
 
-  return (
-    <>
-      <motion.div
-        onClick={toggleOpen}
-        className={`flex items-center font-semibold scrollbar-custom  overflow-y-auto py-2 px-3 mb-2 text-md  rounded-lg cursor-pointer transition-colors
-          ${isOpen ? "bg-primary text-white" : "hover:bg-primary hover:text-white text-gray-800"}`}
-      >
-        {item.icon}
-        {isSidebarOpen && (
-          <motion.span
-            className="ml-4 whitespace-nowrap scrollbar-custom "
-            initial={{ opacity: 0, width: 0 }}
-            animate={{ opacity: 1, width: "auto" }}
-            exit={{ opacity: 0, width: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            {item.name}
-          </motion.span>
-        )}
-        <span className="ml-auto">{isOpen ? <FaChevronUp /> : <FaChevronDown />}</span>
-      </motion.div>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            className="pl-8"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            {item.subItems.map((subItem) => (
-              <Link key={subItem.href} to={subItem.href}>
-                <motion.div
-                  className={`flex items-center text-nowrap font-medium py-2 px-3 mb-2 text-md rounded-lg transition-colors
-                    ${
-                      location.pathname === subItem.href
-                        ? "bg-primary text-white"
-                        : "hover:bg-primary hover:text-white text-black"
-                    }`}
-                >
-                  {subItem.icon}
-                  {isSidebarOpen && <span className="ml-4">{subItem.name}</span>}
-                </motion.div>
-              </Link>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+  const [activeButton, setActiveButton] = useState(
+    localStorage.getItem("activeButton") || "Dashboard"
   );
-};
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null);
 
-// Main Sidebar Component
-const Sidebar = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
-  const [dropdownStates, setDropdownStates] = useState({});
-
-  const location = useLocation();
+  const menuItems = [
+    { name: "Dashboard", href: "/dashboard", icon: <MdOutlineDashboard /> },
+    { name: "Tailors", href: "/user", icon: <AiOutlineUsergroupAdd /> },
+    {
+      name: "Industries",
+      href: "#",
+      icon: <AiOutlineBranches />,
+      subItems: [
+        { name: "Industries List", href: "/client", icon: <MdOutlineListAlt /> },
+        { name: "Branches", href: "/branches", icon: <AiOutlineBranches /> },
+      ],
+    },
+    { name: "Order Project", href: "/order-project", icon: <MdOutlineFactCheck /> },
+    { name: "Query", href: "/query", icon: <MdOutlineQueryBuilder /> },
+    { name: "Tailor Session Log", href: "/tailorlogs", icon: <MdOutlineFactCheck /> },
+    { name: "Sizes", href: "/type-size", icon: <MdOutlineListAlt /> },
+    {
+      name: "Settings",
+      href: "#",
+      icon: <MdOutlineSettings />,
+      subItems: [
+        { name: "Industry Types", href: "/clients", icon: <MdOutlinePerson /> },
+        { name: "Parameter", href: "/measurement", icon: <MdOutlineQueryBuilder /> },
+      ],
+    },
+  ];
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 768px)");
-
-    const handleMediaQueryChange = (e) => {
-      setIsMobile(e.matches);
-      setIsSidebarOpen(!e.matches);
+    const handleResize = () => {
+      setIsSidebarOpen(window.innerWidth > 1025);
     };
 
-    handleMediaQueryChange(mediaQuery);
-    mediaQuery.addEventListener("change", handleMediaQueryChange);
-
-    return () => mediaQuery.removeEventListener("change", handleMediaQueryChange);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const toggleDropdown = (itemName) => {
-    setDropdownStates((prevState) => ({
-      ...prevState,
-      [itemName]: !prevState[itemName],
-    }));
+  const handleLogout = () => {
+    // Logout functionality here
+    // setLogin(false);
+    navigate("/");
   };
 
+  const handleDropdownToggle = (name) => {
+    setOpenDropdown((prev) => (prev === name ? null : name));
+  };
+
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const currentItem = menuItems.find(
+      (item) =>
+        item.href === currentPath ||
+        item.subItems?.some((sub) => sub.href === currentPath)
+    );
+    if (currentItem) {
+      setActiveButton(currentItem.name);
+      localStorage.setItem("activeButton", currentItem.name);
+    }
+  }, [location.pathname]);
+
   return (
-    <motion.div
-      className={`relative z-10 transition-all duration-300 ease-in-out flex-shrink-0 bg-primary ${
-        isSidebarOpen ? "w-64" : "w-20"
-      }`}
-      animate={{ width: isSidebarOpen ? 220 : 80 }}
-    >
-      <div className="h-full bg-white  scrollbar-custom  overflow-y-auto shadow-md p-4 flex flex-col">
-        <div className={`w-full flex  justify-between mb-6`}>
-          <img
-            src={logo}
-            alt="Logo"
-            className={`transition-all duration-300 ${isSidebarOpen ? "h-10" : "h-8 w-8"}`}
-          />
-          {/* <h1 className="text-primary text-2xl pt-3 font-bold">UMS</h1> */}
-          <motion.button
-            whileHover={{ scale: 1.2 }}
-            whileTap={{ scale: 0.8 }}
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 transition-colors max-w-fit rounded-full bg-primary text-white"
-            disabled={isMobile}
+    <div>
+      <div
+        className={`fixed z-50 h-screen scrollbar-custom  overflow-y-auto  bg-white shadow-lg w-64 transition-transform duration-300 ${
+          isSidebarOpen ? "translate-x-0" : ""
+        }`}
+      >
+        <div className="p-2">
+          <Link
+            to="/dashboard"
+            className="flex items-center space-x-4 border rounded-lg bg-white hover:bg-gray-100 p-2"
           >
-            <HiOutlineMenu size={26} />
-          </motion.button>
+            <img
+              src={logo}
+              alt="User Profile"
+              className="h-12 w-12 rounded-full border p-1"
+            />
+            <div>
+              <p className="text-lg font-semibold text-gray-800">
+                {/* {user?.name || "User Name"} */} User Name
+              </p>
+              <p className="text-sm text-gray-600 capitalize">
+                
+                {/* {user?.role} */} Admin
+                </p>
+            </div>
+          </Link>
         </div>
-        <nav className="mt-8 flex-grow">
-          {SIDEBAR_ITEMS.map((item) =>
-            item.subItems ? (
-              <SidebarDropdown
-                key={item.name}
-                item={item}
-                isOpen={dropdownStates[item.name]}
-                toggleOpen={() => toggleDropdown(item.name)}
-                isSidebarOpen={isSidebarOpen}
-              />
-            ) : (
-              <Link key={item.href} to={item.href}>
-                <motion.div
-                  className={`flex items-center font-semibold py-2 px-3 mb-2 text-sm rounded-lg transition-colors
-                    ${
-                      location.pathname === item.href
-                        ? "bg-primary text-white"
-                        : "hover:bg-primary hover:text-white text-black"
+
+        <ul className="p-4 space-y-6">
+          {menuItems.map((item) => {
+            const isActive = activeButton === item.name;
+
+            return (
+              <li key={item.name}>
+                <div className="flex flex-col">
+                  <button
+                    className={`flex items-center justify-between p-2 rounded ${
+                      isActive ? "bg-primary text-white" : "text-black"
                     }`}
-                >
-                  {item.icon}
-                  {isSidebarOpen && (
-                    <motion.span
-                      className="ml-4 whitespace-nowrap"
-                      initial={{ opacity: 0, width: 0 }}
-                      animate={{ opacity: 1, width: "auto" }}
-                      exit={{ opacity: 0, width: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {item.name}
-                    </motion.span>  
+                    onClick={() => {
+                      if (item.subItems) {
+                        handleDropdownToggle(item.name);
+                      } else {
+                        setActiveButton(item.name);
+                        localStorage.setItem("activeButton", item.name);
+                        setIsSidebarOpen(false);
+                        navigate(item.href);
+                      }
+                    }}
+                  >
+                    <div className="flex items-center space-x-4">
+                      {item.icon}
+                      <span>{item.name}</span>
+                    </div>
+                    {item.subItems && (
+                      <FaAngleDown
+                        className={`transition-transform ${
+                          openDropdown === item.name ? "rotate-180" : ""
+                        }`}
+                      />
+                    )}
+                  </button>
+
+                  {item.subItems && openDropdown === item.name && (
+                    <ul className="ml-8 mt-2 space-y-2">
+                      {item.subItems.map((sub) => (
+                        <li key={sub.name}>
+                          <Link
+                            to={sub.href}
+                            className={`flex items-center p-2 rounded ${
+                              location.pathname === sub.href
+                                ? "bg-gray-300"
+                                : "text-gray-600"
+                            }`}
+                            onClick={() => setIsSidebarOpen(false)}
+                          >
+                            {sub.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
                   )}
-                </motion.div>
-              </Link>
-            )
-          )}
-        </nav>
+                </div>
+              </li>
+            );
+          })}
+          <li>
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-4 p-2 rounded text-black hover:bg-gray-200"
+            >
+              <FaSignOutAlt className="h-6 w-6" />
+              <span>Logout</span>
+            </button>
+          </li>
+        </ul>
+
+        <div className="p-4 mt-auto">
+          <div className="border bg-primary text-white rounded-lg p-6">
+            <div className="flex items-start space-x-2">
+              <img
+                src={logo}
+                alt="Support"
+                className="h-12 w-12 rounded-full border p-1"
+              />
+              <div>
+                <h2 className="font-semibold">Need Help?</h2>
+                <p className="text-xs">Our team is here to assist you!</p>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-center">
+              <a
+                href="tel:+919363959787"
+                className="bg-white text-black text-sm py-2 px-4 rounded-full flex items-center gap-2"
+              >
+                <FaPhoneAlt size={19} />
+                <span>+91 9363959787</span>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
-    </motion.div>
+
+      {isSidebarOpen && (
+        <div
+          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 z-10 bg-black bg-opacity-50 lg:hidden"
+        ></div>
+      )}
+    </div>
   );
 };
 
-export default Sidebar;
+export default  Sidebar;
