@@ -2,8 +2,5 @@
     "navigationFallback": {
       "rewrite": "/index.html",
       "exclude": ["/images/*. {png,jpg,gif}", "/css/*"]
-    },
-    "globalHeaders": {
-      "REACT_APP_BASEURL": "https://ums-backend-ereyf5fjfxd9d6bn.southindia-01.azurewebsites.net"
     }
   }
