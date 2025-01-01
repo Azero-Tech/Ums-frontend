@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login, resetPassword } from "../../apis/authApi";  // Assuming you import these from your api.js
 import logo from "../../Assets/logo01.png";
@@ -65,7 +65,7 @@ const Login = () => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
-    useState(()=>{
+    useEffect(()=>{
         if(isLogin){
             navigate('/dashboard')
         }
