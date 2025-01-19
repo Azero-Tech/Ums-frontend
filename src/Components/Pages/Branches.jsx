@@ -8,10 +8,11 @@ import {
   ChevronRight,
   X,
 } from "lucide-react";
-import { getAllBranches } from "../../apis/branchApi";
 import { getAllTypes } from "../../apis/industryTypeApi";
 import { getIndustriesByType } from "../../apis/industryApi";
-import { createBranch, deleteBranch, updateBranch } from "../../apis/branchApi";
+import {getAllBranches, createBranch, deleteBranch, updateBranch } from "../../apis/branchApi";
+import {useAuth } from '../context/AuthProvider'
+import toast from "react-hot-toast";
 
 const Branches = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -32,6 +33,7 @@ const Branches = () => {
     industry: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
+  const {setIsLoading} = useAuth()
   const itemsPerPage = 5;
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -44,10 +46,12 @@ const Branches = () => {
   }, []);
 
   const fetchBranches = () => {
+    setIsLoading(true)
     getAllBranches()
       .then((res) => {
         setBranches(res.data);
         setFilteredProducts(res.data);
+        setIsLoading(false)
       })
       .catch((err) => {
         console.log(err);
@@ -68,14 +72,21 @@ const Branches = () => {
   };
 
   const handleDelete = (productId) => {
+    setIsLoading(true)
     deleteBranch(productId)
-      .then(() => {
+      .then((res) => {
         setFilteredProducts(filteredProducts.filter((product) => product._id !== productId));
+        toast.success(res.message)
+        setIsLoading(false)
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err)
+        toast.error(err.response?.data?.message)
+      });
   };
 
   const handleAdd = () => {
+    setIsLoading(true)
     createBranch(newProduct)
       .then((res) => {
         fetchBranches()
@@ -89,17 +100,27 @@ const Branches = () => {
           industryType: "",
           industry: "",
         });
+        toast.success(res.message)
+        setIsLoading(false)
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err)
+        toast.error(err.response?.data?.message)
+      });
   };
 
   const handleSave = () => {
     updateBranch(editProduct._id, editProduct)
-      .then(() => {
+      .then((res) => {
         fetchBranches()
         setEditModalOpen(false);
+        toast.success(res.message)
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err)
+        toast.error(err.response?.data?.message)
+      }
+    );
   };
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -110,9 +131,11 @@ const Branches = () => {
   };
 
   const handleClientTypeChange = (value) => {
-    console.log("Selected Client Type:", value);
+    // console.log("Selected Client Type:", value);
+    setIsLoading(true)
     getIndustriesByType(value).then((res) => {
       setIndustries(res.data);
+      setIsLoading(false)
     });
   };
 

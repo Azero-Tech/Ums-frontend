@@ -12,6 +12,11 @@ export const getAllSizes = async () => {
     return response.data;
 };
 
+export const getAllSizesByIndustry = async (industryId) => {
+    const response = await axiosInstance.get(`/sizes/${industryId}`);  // Correct endpoint for fetching all sizes
+    return response.data;
+};
+
 // Get a specific size by ID
 export const getSize = async (id) => {
     const response = await axiosInstance.get(`/size/${id}`);  // Correct endpoint for fetching a specific size
@@ -39,3 +44,8 @@ export const removeMapBySize = async (id,mappingId) => {
     const response = await axiosInstance.post(`/size/${id}/remove-map/${mappingId}`);
     return response.data;
 };
+
+export const uploadBulkSizes = async(data)=>{
+    const response = await axiosInstance.patch(`/sizes/excel`,data);
+    return response.data;
+}

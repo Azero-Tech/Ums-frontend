@@ -12,6 +12,8 @@ import {
   deleteOrderById,
 } from "../../apis/orderApi";
 import { getAllTailors } from "../../apis/tailorApi";
+import {useAuth} from '../context/AuthProvider'
+import toast from "react-hot-toast";
 
 const OrderProject = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -32,6 +34,7 @@ const OrderProject = () => {
   const itemsPerPage = 5;
   const [isEditMode, setIsEditMode] = useState(false); // To track if it's Add or Edit mode
   const navigate = useNavigate();
+  const {setIsLoading} = useAuth()
 
   useEffect(() => {
     fetchOrders();
@@ -52,10 +55,12 @@ const OrderProject = () => {
   }, []);
 
   const fetchOrders = () => {
+    setIsLoading(true)
     getAllOrders()
       .then((res) => {
         setOrders(res.data);
         setFilteredUsers(res.data);
+        setIsLoading(false)
       })
       .catch((err) => {
         console.log(err);
@@ -77,11 +82,15 @@ const OrderProject = () => {
   };
 
   const handleDelete = (userId) => {
+    setIsLoading(true)
     deleteOrderById(userId).then(res=>{
         const updatedUsers = filteredUsers.filter((user) => user._id !== userId);
-    setFilteredUsers(updatedUsers);
+        setFilteredUsers(updatedUsers);
+        toast.success(res.message)
+        setIsLoading(false)
     }).catch(err=>{
         console.log(err)
+        toast.error(err.response?.data?.message)
     })
     
   };
@@ -89,18 +98,27 @@ const OrderProject = () => {
   const handleSave = () => {
     if (isEditMode) {
       updateOrderById(newOrder.id, newOrder)
-        .then(() => {
+        .then((res) => {
           fetchOrders();
           setModalOpen(false);
+          toast.success(res.message)
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err)
+          toast.error(err.response?.data?.message)
+        }
+      );
     } else {
       createOrder(newOrder)
-        .then(() => {
+        .then((res) => {
           fetchOrders();
           setModalOpen(false);
+          toast.success(res.message)
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err)
+          toast.error(err.response?.data?.message)
+        });
     }
   };
 
@@ -110,9 +128,11 @@ const OrderProject = () => {
       ...newOrder,
       industryType: selectedIndustry, // Reset industry type
     });
+    setIsLoading(true)
     getIndustriesByType(selectedIndustry)
       .then((res) => {
         setIndustries(res.data);
+        setIsLoading(false)
       })
       .catch((err) => {
         console.log(err);
@@ -121,9 +141,11 @@ const OrderProject = () => {
 
   const handleIndustryTypeChange = (e) => {
     const industryId = e.target.value;
+    setIsLoading(true)
     getBranchByIndustries(industryId)
       .then((res) => {
         setBranches(res.data);
+        setIsLoading(false)
       })
       .catch((err) => {
         console.log(err);
@@ -233,6 +255,9 @@ const OrderProject = () => {
                   {header}
                 </th>
               ))}
+              {/* <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
+                Status
+              </th> */}
               <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
                 Actions
               </th>
@@ -254,6 +279,7 @@ const OrderProject = () => {
                   <td className="px-4 py-2 border-b">
                     {user.industry.name} ({user.industryType?.type})
                   </td>
+                  {/* <td className="px-4 py-2 border-b">{user.status}</td> */}
                   <td className="px-4 py-2 border-b">{actions(user)}</td>
                   <td className="px-4 py-2 border-b">{studentAction(user)}</td>
                 </tr>
@@ -382,7 +408,7 @@ const OrderProject = () => {
                     <option value="" disabled>
                       Select tailor
                     </option>
-                    {tailors.map((tailor) => (
+                    {tailors.filter(tailor=>tailor.role !== "super-admin").map((tailor) => (
                       <option key={tailor._id} value={tailor._id}>
                         {tailor.name}
                       </option>

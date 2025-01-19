@@ -8,14 +8,16 @@ import {
   MdOutlineQueryBuilder,
   MdOutlineFactCheck,
   MdProductionQuantityLimits,
+  MdReport,
 } from "react-icons/md";
 import { AiOutlineBranches, AiOutlineUsergroupAdd } from "react-icons/ai";
 import { FaAngleDown, FaSignOutAlt, FaPhoneAlt } from "react-icons/fa";
 import logo from "../../Assets/logo01.png";
+import azeroLogo from '../../Assets/logo.webp'
 import { useAuth } from "../context/AuthProvider";
 import { logout } from "../../apis/authApi";
 
-const  Sidebar = () => {
+const  Sidebar = ({isSidebarOpen, setIsSidebarOpen}) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user,setUser, setLogin } = useAuth();
@@ -23,7 +25,6 @@ const  Sidebar = () => {
   const [activeButton, setActiveButton] = useState(
     localStorage.getItem("activeButton") || "Dashboard"
   );
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
 
   const menuItems = user?.role === "super-admin" ? [
@@ -42,13 +43,14 @@ const  Sidebar = () => {
     // { name: "Query", href: "/query", icon: <MdOutlineQueryBuilder /> },
     // { name: "Tailor Session Log", href: "/tailorlogs", icon: <MdOutlineFactCheck /> },
     { name: "Products", href: "/type-size", icon: <MdOutlineListAlt /> },
+    { name: "Reports", href: "/report", icon: <MdReport/> },
     {
       name: "Settings",
       href: "#",
       icon: <MdOutlineSettings />,
       subItems: [
         { name: "Industry Types", href: "/clients", icon: <MdOutlinePerson /> },
-        { name: "Parameter", href: "/measurement", icon: <MdOutlineQueryBuilder /> },
+        // { name: "Parameter", href: "/measurement", icon: <MdOutlineQueryBuilder /> },
       ],
     },
   ]:[
@@ -98,7 +100,7 @@ const  Sidebar = () => {
     <div>
       <div
         className={`fixed z-50 h-screen scrollbar-custom  overflow-y-auto  bg-white shadow-lg w-64 transition-transform duration-300 ${
-          isSidebarOpen ? "translate-x-0" : ""
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="p-2">
@@ -132,7 +134,7 @@ const  Sidebar = () => {
                       } else {
                         setActiveButton(item.name);
                         localStorage.setItem("activeButton", item.name);
-                        setIsSidebarOpen(false);
+                        // setIsSidebarOpen(false);
                         navigate(item.href);
                       }
                     }}
@@ -161,7 +163,7 @@ const  Sidebar = () => {
                                 ? "bg-gray-300"
                                 : "text-gray-600"
                             }`}
-                            onClick={() => setIsSidebarOpen(false)}
+                            // onClick={() => setIsSidebarOpen(false)}
                           >
                             {sub.name}
                           </Link>
@@ -188,7 +190,7 @@ const  Sidebar = () => {
           <div className="border bg-primary text-white rounded-lg p-6">
             <div className="flex items-start space-x-2">
               <img
-                src={logo}
+                src={azeroLogo}
                 alt="Support"
                 className="h-12 w-12 bg-white rounded-full border p-1"
               />

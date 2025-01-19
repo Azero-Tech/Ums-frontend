@@ -4,6 +4,8 @@ import { Edit, Search, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Switch } from '@mui/material';
 import { createType, getAllTypes, getType, updateType, deleteType } from '../../apis/industryTypeApi';
 import { filter } from 'framer-motion/client';
+import {useAuth} from '../context/AuthProvider'
+import toast from 'react-hot-toast';
 
 const ProductTable = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -14,6 +16,7 @@ const ProductTable = () => {
     const [editProduct, setEditProduct] = useState(null);
     const [type, setType] = useState('');  // Changed to 'type'
     const [currentPage, setCurrentPage] = useState(1);
+    const {setIsLoading} = useAuth()
     const itemsPerPage = 5;
 
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -21,10 +24,12 @@ const ProductTable = () => {
     // Fetch industries on initial load
     useEffect(() => {
         const fetchIndustries = async () => {
+            setIsLoading(true)
             try {
                 const response = await getAllTypes();  // Fetch types from the API
                 setProducts(response.data);  // Set raw data
                 setFilteredProducts(response.data);  // Initially set filtered data
+                setIsLoading(false)
             } catch (error) {
                 console.error(error);  // Log the error for debugging
                 alert('Error fetching types.');
@@ -56,13 +61,16 @@ const ProductTable = () => {
 
     // Handle Delete action
     const handleDelete = async (productId) => {
+        setIsLoading(true)
         try {
-            await deleteType(productId);  // Send delete request to API
+            const res = await deleteType(productId);  // Send delete request to API
             const updatedProducts = filteredProducts.filter(product => product._id !== productId);
             setFilteredProducts(updatedProducts);
+            setIsLoading(false)
+            toast.success(res.message)
         } catch (error) {
             console.error(error);
-            alert('Error deleting type.');
+            toast.error(error.response?.data?.message);
         }
     };
 
@@ -72,46 +80,54 @@ const ProductTable = () => {
             alert('Type name cannot be empty!');
             return;
         }
-
         try {
+            setIsLoading(true)
             const response = await createType({ type });
             setFilteredProducts([{type,status:"actived"}, ...filteredProducts]);
             setAddModalOpen(false);
             setType('');
+            setIsLoading(false)
+            toast.success(response.message)
         } catch (error) {
             console.error(error);
-            alert('Error adding type.');
+            toast.error(error.response?.data?.message);
         }
     };
 
     // Handle Save action (Save the edited product)
     const handleSave = async () => {
+        setIsLoading(true)
         try {
-            await updateType(editProduct._id, editProduct);  // Send updated data to API
+            const res = await updateType(editProduct._id, editProduct);  // Send updated data to API
             const updatedProducts = filteredProducts.map(product =>
                 product._id === editProduct._id ? editProduct : product
             );
             setFilteredProducts(updatedProducts);
             setEditModalOpen(false);
+            setIsLoading(false)
+            toast.success(res.message)
         } catch (error) {
             console.error(error);
-            alert('Error saving changes.');
+            toast.error(error.response?.data?.message);
         }
     };
 
     // Toggle Status (Active/Deactivated)
     const toggleStatus = async(productId) => {
+        setIsLoading(true)
         try {
             const data = filteredProducts.find(data => data._id === productId)
-            await updateType(productId, {...data,status: data.status === 'actived' ? 'deactived' : 'actived'}); 
+            const res = await updateType(productId, {status: data.status === 'actived' ? 'deactived' : 'actived'}); 
             const updatedProducts = filteredProducts.map(product =>
                 product._id === productId ? { ...product, status: product.status === 'actived' ? 'deactived' : 'actived' } : product
             );
             setFilteredProducts(updatedProducts);
             setEditModalOpen(false);
+            setIsLoading(false)
+            toast.success(res.message)
         } catch (error) {
             console.error(error);
-            alert('Error saving changes.');
+            toast.error(error.response?.data?.message);
         }
     };
 

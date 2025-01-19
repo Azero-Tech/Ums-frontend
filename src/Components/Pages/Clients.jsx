@@ -8,6 +8,8 @@ import {
   deleteIndustry
 } from "../../apis/industryApi"; // Import your API functions
 import { getAllTypes } from '../../apis/industryTypeApi';
+import {useAuth}  from '../context/AuthProvider'
+import toast from "react-hot-toast";
 
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,9 +24,11 @@ const Clients = () => {
   });
   const [editingIndustry, setEditingIndustry] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const {setIsLoading} = useAuth()
   const itemsPerPage = 5;
 
   useEffect(() => {
+    setIsLoading(true)
     const fetchIndustries = async () => {
       try {
         const data = await getAllIndustries();
@@ -33,6 +37,7 @@ const Clients = () => {
         // Ensure industries and filteredIndustries are arrays
         setIndustries(data.data);
         setFilteredIndustries(data.data);
+        setIsLoading(false)
       } catch (error) {
         console.error("Error fetching industries:", error);
       }
@@ -46,43 +51,51 @@ const Clients = () => {
     setSearchTerm(term);
     const filtered = industries.filter(
       (industry) =>
-        industry.fullName.toLowerCase().includes(term) ||
-        industry.industryType.name.toLowerCase().includes(term)
+        industry.name.toLowerCase().includes(term) ||
+        industry.industryType.type.toLowerCase().includes(term)
     );
     setFilteredIndustries(filtered);
     setCurrentPage(1);
   };
 
   const handleDelete = async (id) => {
+    setIsLoading(true)
     try {
-      await deleteIndustry(id);
+      const res = await deleteIndustry(id);
       setFilteredIndustries(filteredIndustries.filter((industry) => industry._id !== id));
+      toast.success(res.message)
+      setIsLoading(false)
     } catch (error) {
       console.error("Error deleting industry:", error);
+      toast.error(error?.response?.data?.message)
     }
   };
 
   const handleAdd = async () => {
     try {
+      setIsLoading(true)
       const newIndustryData = await createIndustry(newIndustry);
       setAddModalOpen(false);
       setNewIndustry({ name: "", industryType: "" });
+      toast.success(newIndustryData.message)
+      setIsLoading(false)
     } catch (error) {
       console.error("Error adding industry:", error);
+      toast.error(error.response?.data?.message)
     }
   };
 
   const handleEdit = async () => {
+    setIsLoading(true)
     try {
-      const updatedIndustryData = await updateIndustry(editingIndustry._id, editingIndustry);
-      const updatedIndustries = filteredIndustries.map((industry) =>
-        industry._id === editingIndustry._id ? updatedIndustryData : industry
-      );
-      setFilteredIndustries(updatedIndustries);
+      const res = await updateIndustry(editingIndustry._id, editingIndustry);
       setEditModalOpen(false);
       setEditingIndustry(null);
+      toast.success(res.message)
+      setIsLoading(false)
     } catch (error) {
       console.error("Error editing industry:", error);
+      toast.error(error.response?.data?.message)
     }
   };
 

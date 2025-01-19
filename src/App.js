@@ -23,15 +23,19 @@ import Main from "./Components/UI/Main";
 import Project from "./Components/Tailor/Project";
 import ProductPage from "./Components/Tailor/ProductPage";
 import AuthProvider from "./Components/context/AuthProvider";
+import Report from "./Components/Pages/Report";
+import Loader from "./Components/Loader";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <Loader/>
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+          {/* <Route path="/signup" element={<Signup />} /> */}
           <Route path="/" element={<Login />} />
 
           {/* Protected Routes */}
@@ -45,11 +49,11 @@ const App = () => {
               <Route path="type-size" element={<SizeType />} />
               <Route path="order-project" element={<OrderProject />} />
               <Route path="query" element={<Query />} />
-              <Route path="student/:orderId" element={<Student />} />
               <Route path="mapping" element={<Mapping />} />
               {/* <Route path="project" element={<Project />} />
               <Route path="products/:id" element={<ProductPage />} /> */}
               <Route path="tailorlogs" element={<TailorLogs />} />
+              <Route path="report" element={<Report/>}/>
             </Route>
           </Route>
 
@@ -58,12 +62,17 @@ const App = () => {
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="projects" element={<Project />} />
               <Route path="projects/:id" element={<ProductPage />} />
+              <Route path="student/:orderId" element={<Student />} />
             </Route>
           </Route>
 
           {/* 404 Route */}
           <Route path="*" element={<div>404 - Page Not Found</div>} />
         </Routes>
+        <Toaster
+  position="top-right"
+  reverseOrder={false}
+/>
       </BrowserRouter>
     </AuthProvider>
   );

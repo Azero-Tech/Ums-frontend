@@ -4,10 +4,11 @@ import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getAssignedTailor } from "../../apis/orderApi";
 import { useAuth } from "../context/AuthProvider";
+import { IoMdEye } from "react-icons/io";
 
 
 const Project = () => {
-    const {user} =useAuth()
+    const {user,setIsLoading} =useAuth()
     const [list,setList] = useState([])
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
@@ -21,14 +22,19 @@ const Project = () => {
         return list.slice(start, start + itemsPerPage);
     };
 
-    const headers = ["S.No","Branch", "Institution", "Actions"];
+    const headers = ["S.No","Branch", "Institution","Student", "Products"];
 
     useEffect(()=>{
         if(user){
+            setIsLoading(true)
             getAssignedTailor(user._id)
             .then(res=>{
                 setList(res.data.orders)
-            }).catch(err=>console.log(err))
+                setIsLoading(false)
+            }).catch(err=>{console.log(err)
+                setList([])
+            setIsLoading(false)
+        })
         }
     },[])
     return (
@@ -42,7 +48,7 @@ const Project = () => {
 
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse bg-white text-left text-sm text-gray-700">
-                    <thead className="bg-gray-100">
+                    <thead className="min-w-full table-auto divide-y divide-gray-600">
                         <tr>
                             {headers.map((header, index) => (
                                 <th
@@ -55,27 +61,35 @@ const Project = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {getCurrentPageUsers().map((order, index) => (
+                        {getCurrentPageUsers().length > 0 ? getCurrentPageUsers().map((order, index) => (
                             <tr
                                 key={order._id}
-                                className={`hover:bg-gray-100 ${
-                                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                                }`}
+                                className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                             >
                                 <td className="px-6 py-4 border-b">{index+1}</td>
                                 <td className="px-6 py-4 border-b">{order.branch.name}</td>
                                 <td className="px-6 py-4 border-b">{order.industry.name}</td>
                                 <td className="px-6 py-4 border-b">
                                     <button
-                                        onClick={() => navigate(`/projects/${user._id}`)}
+                                        onClick={() => navigate(`/student/${order._id}`)}
                                         className="flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition"
                                     >
                                         {/* <span>View</span> */}
                                         <ArrowRight size={16} />
                                     </button>
                                 </td>
+                                <td className="px-6 py-4 border-b">
+                                    <button
+                                        onClick={() => navigate(`/projects/${order._id}`)}
+                                        className="flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition"
+                                    >
+                                        {/* <span>View</span> */}
+                                        <IoMdEye size={16} />
+                                    </button>
+                                </td>
                             </tr>
-                        ))}
+                        )):
+                        "NOT ASSIGNED"}
                     </tbody>
                 </table>
             </div>

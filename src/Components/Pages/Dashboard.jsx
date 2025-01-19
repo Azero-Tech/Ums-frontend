@@ -11,18 +11,21 @@ import { useAuth } from "../context/AuthProvider";
 
 const Dashboard = () => {
   const [dashboard, setDashboard] = useState([]);
-  const { user } = useAuth();
+  const { user,setIsLoading } = useAuth();
   useEffect(() => {
+    setIsLoading(true)
     if (user?.role === "super-admin") {
       adminDashboard()
         .then((res) => {
           setDashboard(res.data);
+          setIsLoading(false)
         })
         .catch((err) => console.log(err));
     } else {
       tailorDashboard()
         .then((res) => {
           setDashboard(res.data);
+          setIsLoading(false)
         })
         .catch((err) => console.log(err));
     }

@@ -34,3 +34,8 @@ export const getAssignedTailor = async(tailorId)=>{
     const response = await axiosInstance.get(`/orders/tailor/${tailorId}`)
     return response.data
 }
+
+export const bulkUploadStudents = async(orderId,file)=>{
+    const response = await axiosInstance.post(`/orders/${orderId}/excel-upload`,file)
+    return response.data
+}

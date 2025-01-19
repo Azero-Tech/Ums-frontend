@@ -2,18 +2,21 @@ import React from 'react';
 import logo from "../../Assets/logo.jpeg";
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthProvider';
+import { MdMenu } from 'react-icons/md';
 
 // import adminImage from "../../Assets/admin.jpeg"; // Add your admin image here
 
-const Header = () => {
+const Header = ({isSidebarOpen, setIsSidebarOpen}) => {
   const {user} = useAuth()
   return (
     <header className="w-[95%] mt-3 mx-auto bg-white shadow-md rounded-sm">
       <div className="flex items-center justify-between p-3"> {/* Reduced padding */}
         {/* Left side: Logo */}
         {/* <img src={logo} alt="Logo" className="h-8 object-contain" /> Reduced logo height */}
-        <h1 className="text-primary text-2xl pt-3 capitalize font-medium">Uniform Management System</h1>
-
+        {!isSidebarOpen && <button onClick={()=>setIsSidebarOpen(!isSidebarOpen)} className=' text-primary text-3xl flex justify-center items-center'>
+        <MdMenu />
+        </button>}
+        <h1 className="text-primary text-xl md:text-2xl capitalize font-medium mr-auto">Uniform Management System</h1>
 
         {/* Right side: Admin Image */}
         <Link

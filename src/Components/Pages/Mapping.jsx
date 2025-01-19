@@ -1,7 +1,7 @@
 import { X, Edit2, Trash2 } from "lucide-react";
 import { getAllParameters } from "../../apis/parameterApi";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { addMapBySize,removeMapBySize } from '../../apis/sizeApi'
 
 const Mapping = ({

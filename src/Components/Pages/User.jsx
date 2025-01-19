@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Edit, Search, Trash2, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { getAllTailors, createTailor, deleteTailor, updateTailor } from "../../apis/tailorApi"; // Assuming API functions are set up
+import { useAuth } from "../context/AuthProvider";
+import toast from "react-hot-toast";
 
 const User = () => {
     const [searchTerm, setSearchTerm] = useState("");
@@ -19,12 +21,15 @@ const User = () => {
         phone: "",
     });
     const [currentPage, setCurrentPage] = useState(1);
+    const { setIsLoading} = useAuth()
     const itemsPerPage = 5;
 
     useEffect(() => {
+        setIsLoading(true)
         getAllTailors().then((res) => {
             setTailors(res.data);
             setFilteredTailors(res.data);
+            setIsLoading(false)
         }).catch((err) => {
             console.log(err);
         });
@@ -50,20 +55,25 @@ const User = () => {
     };
 
     const handleDelete = (tailorId) => {
-        deleteTailor(tailorId).then(() => {
+        deleteTailor(tailorId).then((res) => {
             const updatedTailors = filteredTailors.filter(tailor => tailor._id !== tailorId);
             setFilteredTailors(updatedTailors);
+            toast.error(res.message)
         }).catch((err) => {
             console.log(err);
+            toast.error(err.response?.data?.message)
         });
     };
 
     const handleAdd = () => {
+        setIsLoading(true)
         createTailor(newTailor).then((res) => {
             // setFilteredTailors([...filteredTailors,newTailor]);
+            toast.success(res.message)
             getAllTailors().then((res) => {
                 setTailors(res.data);
                 setFilteredTailors(res.data);
+                setIsLoading(false)
             }).catch((err) => {
                 console.log(err);
             });
@@ -78,18 +88,23 @@ const User = () => {
             });
         }).catch((err) => {
             console.log(err);
+            toast.error(err.response?.data?.message)
         });
     };
 
     const handleSave = () => {
+        setIsLoading(true)
         updateTailor(editTailor._id, editTailor).then((res) => {
             const updatedTailors = filteredTailors.map((tailor) =>
                 tailor._id === editTailor._id ? res.data : tailor
             );
             setFilteredTailors(updatedTailors);
             setEditModalOpen(false);
+            setIsLoading(false)
+            toast.success(res.message)
         }).catch((err) => {
             console.log(err);
+            toast.error(err.response?.data?.message)
         });
     };
 
@@ -223,7 +238,7 @@ const User = () => {
                         >
                             <X size={20} />
                         </button>
-                        <div className="space-y-4">
+                        <div className=" grid grid-cols-2 gap-2">
                             <div>
                                 <label className="block text-sm font-medium">Name</label>
                                 <input
@@ -253,12 +268,14 @@ const User = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium">Gender</label>
-                                <input
-                                    type="text"
-                                    className="w-full px-4 py-2 border rounded-md"
-                                    value={newTailor.gender}
-                                    onChange={(e) => setNewTailor({ ...newTailor, gender: e.target.value })}
-                                />
+                                <select value={newTailor.gender} onChange={(e)=>setNewTailor({...newTailor,gender : e.target.value})} className=" w-full border p-2">
+                                    <option value="">--select--</option>
+                                    {
+                                        ['male','female','other'].map((gender,index)=>(
+                                            <option value={gender} key={index}>{gender}</option>
+                                        ))
+                                    }
+                                </select>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium">Email</label>
