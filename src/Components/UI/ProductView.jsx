@@ -224,11 +224,8 @@ const ProductView = ({
                 />
               </div>
             }
-            {/* Quantity Input */}
-            {selectedProduct && (
-              <div className="mb-4">
-                {
-                  selectedProduct === "custom" && <>
+            {
+                  selectedProduct === "custom" && <div className="mb-4">
                   <label className="block text-sm font-medium mb-1">
                     Price
                   </label>
@@ -238,8 +235,11 @@ const ProductView = ({
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                 />
-                  </>
+                  </div>
                 }
+            {/* Quantity Input */}
+            {selectedProduct && (
+              <div className="mb-4">
                 <div className=" flex justify-between items-center">
                   <label className="block text-sm font-medium mb-1">
                     Quantity
@@ -260,13 +260,14 @@ const ProductView = ({
                 />
               </div>
             )}
-            {/* Remark for Custom Product */}
+            
+            </div>
             {selectedProduct &&
                 <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">
                   Description ( Optional )
                 </label>
-                <input
+                <textarea
                   type="text"
                   className="border rounded-lg py-2 px-4 w-full"
                   value={description}
@@ -274,8 +275,6 @@ const ProductView = ({
                 />
               </div>
               }
-            </div>
-
             {/* Add to Cart Button */}
             {selectedProduct && quantity && (
               <button

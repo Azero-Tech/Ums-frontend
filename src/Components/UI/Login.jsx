@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { login, resetPassword } from "../../apis/authApi";  // Assuming you import these from your api.js
 import logo from "../../Assets/logo01.png";
 import { useAuth } from "../context/AuthProvider";
+import toast from "react-hot-toast";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -31,12 +32,13 @@ const Login = () => {
                     newPassword: formData.newPassword,
                     confirmPassword: formData.confirmPassword,
                 };
-                await resetPassword(resetPasswordData);
+                const res = await resetPassword(resetPasswordData);
+                toast.success(res.message)
                 navigate("/dashboard");
                 // Optionally show a success message
             }
         } catch (err) {
-            setError(err.response?.data?.message || "An error occurred");
+            toast.error(err.response?.data?.message || "An error occurred");
         } finally {
             setLoading(false);
         }
@@ -54,6 +56,7 @@ const Login = () => {
             }
             setUser(res.data)
             setLogin(true)
+            toast.success(res.message)
         } catch (err) {
             setError(err.response?.data?.message || "Login failed");
         } finally {
@@ -78,7 +81,7 @@ const Login = () => {
                     {forgotPasswordStep === 1 ? "Login" : "Forgot Password"}
                 </h2>
 
-                {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+                {/* {error && <p className="text-red-500 text-center mb-4">{error}</p>} */}
 
                 {forgotPasswordStep === 1 ? (
                     <form onSubmit={handleLogin} className="space-y-4">
@@ -122,9 +125,9 @@ const Login = () => {
                         >
                             {loading ? "Logging in..." : "Login"}
                         </button>
-                        <p className="mt-4 text-center text-sm text-gray-600">
+                        {/* <p className="mt-4 text-center text-sm text-gray-600">
                             Don't have an account? <a href="/signup" className="text-primary hover:underline">Sign up</a>
-                        </p>
+                        </p> */}
                     </form>
                 ) : (
                     <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
