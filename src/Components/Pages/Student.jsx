@@ -9,7 +9,7 @@ import {
   X,
   View,
 } from "lucide-react";
-import { FaArrowLeft } from "react-icons/fa6";
+import { FaArrowLeft, FaFileInvoice } from "react-icons/fa6";
 import {
   addStudentToOrder,
   getStudentsToOrder,
@@ -27,6 +27,7 @@ import ProductView from "../UI/ProductView";
 import { IoMdEye } from "react-icons/io";
 import toast from "react-hot-toast";
 import { bulkUploadStudents } from "../../apis/orderApi";
+import StudentInvoice from "../StudentInvoice";
 
 const Student = () => {
   const { orderId } = useParams();
@@ -36,34 +37,34 @@ const Student = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false); // Flag for edit mode
   const [selectedStudent, setSelectedStudent] = useState(null);
-  
+
   const [newStudent, setNewStudent] = useState({
     name: "",
     class: "",
-    gender : "",
+    gender: "",
     house: "",
     phone: "",
     // products: [],
   });
   const [productAdd, setProductAdd] = useState(false);
   const [productView, setProductView] = useState(false);
-  const [uploadedFileName,setUploadedFileName] = useState(null)
+  const [uploadedFileName, setUploadedFileName] = useState(null);
+  const [showInvice,setShowInvice] = useState(false)
   const navigate = useNavigate();
- 
-  const { user,setIsLoading } = useAuth();
-  
- 
+
+  const { user, setIsLoading } = useAuth();
+
   useEffect(() => {
     fetchStudents(orderId);
-  }, [orderId,productAdd,productView]);
+  }, [orderId, productAdd, productView]);
 
   const fetchStudents = (orderId) => {
-    setIsLoading(true)
+    setIsLoading(true);
     getStudentsToOrder(orderId)
       .then((res) => {
         setStudents(res.data);
         setFilteredProducts(res.data);
-        setIsLoading(false)
+        setIsLoading(false);
       })
       .catch((err) => console.log(err));
   };
@@ -83,7 +84,7 @@ const Student = () => {
       _id: student._id,
       name: student.name,
       class: student.class,
-      gender : student.gender,
+      gender: student.gender,
       house: student.house,
       phone: student.phone,
       // products: student.products.map((pro)=>pro._id),
@@ -96,7 +97,7 @@ const Student = () => {
     setNewStudent({
       name: "",
       class: "",
-      gender : "",
+      gender: "",
       house: "",
       phone: "",
       // products: [],
@@ -105,19 +106,26 @@ const Student = () => {
   };
 
   const handleSave = () => {
-    setIsLoading(true)
+    setIsLoading(true);
     if (isEditMode) {
       // Update existing student
       updateStudentInOrder(orderId, newStudent._id, newStudent)
         .then((res) => {
           fetchStudents(orderId);
           setModalOpen(false);
-          setNewStudent({ name: "", class: "", house: "", phone: "" ,gender:""});
-          setIsLoading(false)
-          toast.success(res.message)
+          setNewStudent({
+            name: "",
+            class: "",
+            house: "",
+            phone: "",
+            gender: "",
+          });
+          setIsLoading(false);
+          toast.success(res.message);
         })
-        .catch((err) => {console.log(err)
-          toast.error(err.response?.data?.message)
+        .catch((err) => {
+          console.log(err);
+          toast.error(err.response?.data?.message);
         });
     } else {
       // Add new student
@@ -125,12 +133,19 @@ const Student = () => {
         .then((res) => {
           fetchStudents(orderId);
           setModalOpen(false);
-          setNewStudent({ name: "", class: "", house: "", phone: "",gender:"" });
-          setIsLoading(false)
-          toast.success(res.message)
+          setNewStudent({
+            name: "",
+            class: "",
+            house: "",
+            phone: "",
+            gender: "",
+          });
+          setIsLoading(false);
+          toast.success(res.message);
         })
-        .catch((err) => {console.log(err)
-          toast.error(err.response?.data?.message)
+        .catch((err) => {
+          console.log(err);
+          toast.error(err.response?.data?.message);
         });
     }
   };
@@ -140,10 +155,11 @@ const Student = () => {
     removeStudentFromOrder(orderId, studentId)
       .then((res) => {
         fetchStudents(orderId);
-        toast.success(res.message)
+        toast.success(res.message);
       })
-      .catch((err) => {console.log(err)
-        toast.error(err.response?.data?.message)
+      .catch((err) => {
+        console.log(err);
+        toast.error(err.response?.data?.message);
       });
   };
 
@@ -167,23 +183,25 @@ const Student = () => {
 
   const handleBulkUpload = (e) => {
     const file = e.target.files[0];
-    const formData = new FormData()
+    const formData = new FormData();
     if (file) {
-        setUploadedFileName(file.name);
-        formData.append('excelFile', file);
-        setIsLoading(true)
-        bulkUploadStudents(orderId,formData).then(res=>{
-          setIsLoading(false)
-          toast.success(res.message)
-          fetchStudents(orderId)
-        }).catch(err=>{
-          toast.error(err.response?.data?.message)
+      setUploadedFileName(file.name);
+      formData.append("excelFile", file);
+      setIsLoading(true);
+      bulkUploadStudents(orderId, formData)
+        .then((res) => {
+          setIsLoading(false);
+          toast.success(res.message);
+          fetchStudents(orderId);
         })
+        .catch((err) => {
+          toast.error(err.response?.data?.message);
+        });
     }
-};
+  };
   return (
     <motion.div
-      className="mt-12 bg-white rounded-md shadow-md mx-auto section p-5 relative z-10"
+      className="mt-12 bg-white rounded-md shadow-md mx-auto section p-5 relative"
       initial={{ opacity: 0, y: 25 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, delay: 0.2 }}
@@ -209,35 +227,38 @@ const Student = () => {
             value={searchTerm}
           />
         </div>
-        {
-          user?.role === 'super-admin' &&
-          <div className=" flex flex-row-reverse items-center justify-center gap-2 ml-auto mr-2">
-                    <div className="relative">
-                        <input
-                            type="file"
-                            id="bulkUpload"
-                            accept=".csv, .xls, .xlsx"
-                            onChange={handleBulkUpload}
-                            className="hidden"
-                        />
-                        <label htmlFor="bulkUpload" className="text-black border border-gray-300 px-4 py-2 rounded-lg cursor-pointer flex items-center gap-2 hover:bg-gray-200">
-                            <MdUpload size={18} />
-                            Bulk Upload
-                        </label>
-                    </div>
-                    {uploadedFileName && (
-                        <span className="text-sm text-gray-600">{uploadedFileName.slice(0,10)}...</span>
-                    )}
-                </div>
-        }
         {user?.role === "super-admin" && (
-          <button
-            onClick={handleAdd}
-            className="bg-primary font-medium text-white text-md px-4 py-2 rounded-md"
-          >
-            Add Student
-          </button>
+          <div className=" flex flex-row-reverse items-center justify-center gap-2 ml-auto mr-2">
+            <div className="relative">
+              <input
+                type="file"
+                id="bulkUpload"
+                accept=".csv, .xls, .xlsx"
+                onChange={handleBulkUpload}
+                className="hidden"
+              />
+              <label
+                htmlFor="bulkUpload"
+                className="text-black border border-gray-300 px-4 py-2 rounded-lg cursor-pointer flex items-center gap-2 hover:bg-gray-200"
+              >
+                <MdUpload size={18} />
+                Bulk Upload
+              </label>
+            </div>
+            {uploadedFileName && (
+              <span className="text-sm text-gray-600">
+                {uploadedFileName.slice(0, 10)}...
+              </span>
+            )}
+          </div>
         )}
+
+        <button
+          onClick={handleAdd}
+          className="bg-primary font-medium text-white text-md px-4 py-2 rounded-md"
+        >
+          Add Student
+        </button>
       </div>
 
       <div className="overflow-x-auto">
@@ -262,14 +283,14 @@ const Student = () => {
               <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
                 Phone
               </th>
-              {
-                user.role !== "super-admin" && <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
-                Payment
-              </th>
-              }
+              {user.role !== "super-admin" && (
+                <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
+                  Payment
+                </th>
+              )}
               {/* <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">Product</th> */}
               <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
-              Actions
+                Actions
               </th>
             </tr>
           </thead>
@@ -298,25 +319,32 @@ const Student = () => {
                   <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">
                     {student.phone}
                   </td>
-                  {
-                    user.role !== 'super-admin' && 
+                  {user.role !== "super-admin" && (
                     <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">
-                    {student.paymentDetails ? <span> &#8377; {student.paymentDetails.totalPrice}({student.paymentDetails.method})</span>:'not yet'}
-                  </td>
-                  }
+                      {student.paymentDetails ? (
+                        <span>
+                          {" "}
+                          &#8377; {student.paymentDetails.totalPrice}(
+                          {student.paymentDetails.method})
+                        </span>
+                      ) : (
+                        "not yet"
+                      )}
+                    </td>
+                  )}
                   {/* <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{student.products[0]?.name}</td> */}
-                  <td className="px-4 py-2 text-gray-700 border-b">
+                  <td className="px-4 py-2 text-gray-700 flex space-x-3 border-b">
                     {user?.role === "super-admin" ? (
                       <>
                         <button
                           onClick={() => handleEdit(student)}
-                          className="text-blue-500 hover:text-blue-700"
+                          className="text-blue-600 hover:text-blue-700"
                         >
                           <Edit size={18} />
                         </button>
                         <button
                           onClick={() => handleDelete(student._id)}
-                          className="text-red-500 hover:text-red-700"
+                          className=" text-red-600"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -343,6 +371,18 @@ const Student = () => {
                         </button>
                       </>
                     )}
+                    { student.products && student.products.length > 0 &&
+                      <button
+                        className="text-red-500 hover:text-red-700"
+                        title="invoice"
+                        onClick={()=>{
+                          setShowInvice(true)
+                          setSelectedStudent(student)
+                        }}
+                      >
+                        <FaFileInvoice size={18} />
+                      </button>
+                    }
                   </td>
                 </tr>
               ))
@@ -413,13 +453,21 @@ const Student = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Gender
                   </label>
-                  <select value={newStudent.gender} onChange={(e)=>setNewStudent({...newStudent,gender : e.target.value})} className=" w-full border p-2">
-                    <option value="" disabled>--select--</option>
-                    {
-                      ['male','female','other'].map((gender,index)=>(
-                        <option value={gender} key={index}>{gender}</option>
-                        ))
+                  <select
+                    value={newStudent.gender}
+                    onChange={(e) =>
+                      setNewStudent({ ...newStudent, gender: e.target.value })
                     }
+                    className=" w-full border p-2"
+                  >
+                    <option value="" disabled>
+                      --select--
+                    </option>
+                    {["male", "female", "other"].map((gender, index) => (
+                      <option value={gender} key={index}>
+                        {gender}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -499,10 +547,33 @@ const Student = () => {
           </div>
         </div>
       )}
-      {productAdd && 
-      <ProductView setProductAdd={setProductAdd} orderId={orderId} studentId={selectedStudent?._id} studentName={selectedStudent.name} fetchProduct={selectedStudent?.products} addForm/>
-    }
-    {productView && <ProductView setProductView={setProductView} orderId={orderId} studentId={selectedStudent?._id} fetchProduct={selectedStudent?.products} viewForm/>}
+      {productAdd && (
+        <ProductView
+          setProductAdd={setProductAdd}
+          orderId={orderId}
+          studentId={selectedStudent?._id}
+          studentName={selectedStudent.name}
+          fetchProduct={selectedStudent?.products}
+          addForm
+        />
+      )}
+      {productView && (
+        <ProductView
+          setProductView={setProductView}
+          orderId={orderId}
+          studentId={selectedStudent?._id}
+          fetchProduct={selectedStudent?.products}
+          viewForm
+        />
+      )}
+      {
+        showInvice && 
+        <div className=" fixed inset-0 w-full h-full bg-black bg-opacity-50 z-50">
+          <div className=" w-full mx-auto h-full overflow-y-auto">
+            <StudentInvoice student={selectedStudent} setShowInvice={setShowInvice}/>
+          </div>
+        </div>
+      }
     </motion.div>
   );
 };

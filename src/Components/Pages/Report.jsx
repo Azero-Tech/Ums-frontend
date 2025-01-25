@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { getAllOrders } from '../../apis/orderApi';
 import ExcelJS from 'exceljs';
-import { getAllSizes } from '../../apis/sizeApi';
+import Invoice from '../Invoice';
 
 const Report = () => {
   const [order, setOrder] = useState('');
   const [orders, setOrders] = useState([]);
-  const [products, setProducts] = useState([]);
+  // const [products, setProducts] = useState([]);
+  const [genInvoice,setGenInvoice] = useState(false)
 
   const handleDownload = async () => {
     if (!order) {
@@ -66,35 +67,37 @@ const Report = () => {
         createdAt: new Date(student.createdAt).toLocaleString(),
       });
 
-      // Populate Products Sheet
-      student.products?.forEach((product) => {
-        const matchedProduct = products.find((pro) => pro._id === product.product);
-        const productName = matchedProduct ? matchedProduct.name : "Custom Product";
-    
-        // Unique key combining house and product name
-        const houseProductKey = `${student.house}-${productName}`;
-    
-        // Check if the product already exists for the same house
+      student.products.forEach((product) => {
+        const isCustomProduct = product.custom;
+        const productName = isCustomProduct ? "Custom Product" : product.product?.name || "Unknown Product";
+        const productPrice = product.price || product.product?.price || 0;
+
+        // Find an existing entry with the same product name and house
         const existingProductIndex = productMaps.findIndex(
-          (item) => item.house === student.house && item.product === productName
+          (item) =>
+          {
+            if(item.product === "Custom Product") return ;
+            item.house === student.house &&
+            item.product === productName
+          }
         );
-    
+
         if (existingProductIndex === -1) {
-          // If product doesn't exist, add a new entry
+          // Add a new entry if not found
           productMaps.push({
-            // orderId: selectedOrder._id,
             house: student.house,
             product: productName,
-            quantity: product.quantity,
+            quantity: product.quantity, 
             measurement: product.measurement || "-",
             description: product.description || "-",
+            price: productPrice,
             createdAt: new Date(student.createdAt).toLocaleString(),
           });
         } else {
-          // If product exists, increase the quantity
-          productMaps[existingProductIndex].quantity += product.quantity;
+            productMaps[existingProductIndex].quantity += product.quantity; // Update quantity for non-custom products
         }
       });
+
     });
     productMaps.sort((a, b) => a.house.localeCompare(b.house));
     productMaps.forEach((product) => {
@@ -121,39 +124,61 @@ const Report = () => {
     getAllOrders()
       .then((res) => setOrders(res.data))
       .catch((err) => console.error('Error fetching orders:', err));
-    getAllSizes().then((res)=>{
-      setProducts(res.data)
-    })
   }, []);
 
   return (
-    <div className="section mx-auto max-w-md mt-10 space-y-4">
-      <div>
-        <label htmlFor="order" className="block text-sm font-medium text-gray-700 mb-2">
-          Order
-        </label>
-        <select
-          id="order"
-          value={order}
-          onChange={(e) => setOrder(e.target.value)}
-          className="border rounded-lg py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          <option value="">Select an order</option>
-          {orders.map((o) => (
-            <option key={o._id} value={o._id}>
-              {o.branch?.name} ({o.industry?.name})
-            </option>
-          ))}
-        </select>
-      </div>
+    <div className="section mx-auto mt-10 max-w-4xl space-y-8">
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <h1 className="text-2xl font-semibold text-gray-800 mb-4">Generate Report</h1>
 
-      <button
-        onClick={handleDownload}
-        className="w-full px-4 py-2 text-white bg-primary rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-      >
-        Download Report
-      </button>
+      <div className="space-y-4">
+        <div>
+          <label
+            htmlFor="order"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Select Order
+          </label>
+          <select
+            id="order"
+            value={order}
+            onChange={(e) => setOrder(e.target.value)}
+            className="w-full border rounded-lg py-2 px-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          >
+            <option value="">Choose an order</option>
+            {orders.map((o) => (
+              <option key={o._id} value={o._id}>
+                {o.branch?.name} ({o.industry?.name})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex space-x-4">
+          <button
+            onClick={handleDownload}
+            className="w-full bg-primary text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          >
+            Download Report
+          </button>
+          <button
+            onClick={() => setGenInvoice(true)}
+            className="w-full bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:outline-none"
+          >
+            Download Invoice
+          </button>
+        </div>
+      </div>
     </div>
+
+    {genInvoice && (
+      <div className="bg-white p-6 rounded-lg">
+        <Invoice
+          selectedOrder={orders.find((o) => o._id === order)}
+        />
+      </div>
+    )}
+  </div>
   );
 };
 

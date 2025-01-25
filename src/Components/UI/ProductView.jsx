@@ -6,6 +6,7 @@ import { getIndustriesByType } from "../../apis/industryApi";
 import { updateStudentInOrder } from "../../apis/studentApi";
 import { toast } from "react-hot-toast";
 import { getOrderById } from "../../apis/orderApi";
+import { sendTemplateMessage } from "../../apis/apiConfig";
 
 const ProductView = ({
   setProductAdd,
@@ -144,7 +145,7 @@ const ProductView = ({
     // });
    
     updateStudentInOrder(orderId, studentId, {
-      products: [...student.products, ...productsToSubmit],
+      products: productsToSubmit,
       paymentDetails: {
         method,
         totalPrice: student.paymentDetails
@@ -154,6 +155,20 @@ const ProductView = ({
       },
     })
       .then((res) => {
+        const payload = {
+          to:  `+91${student.phone}`, // Replace with the recipient's phone number
+          recipient_type: "individual",
+          type: "template",
+          template: {
+            language: {
+              policy: "deterministic",
+              code: "en",
+            },
+            name: "school_order_completion",
+            components: [],
+          },
+        };
+        sendTemplateMessage(payload).then((res)=>toast.success(res.message)).catch(err=>console.log(err))
         toast.success('product add successfully')
         setProductAdd(false)
       })
@@ -362,14 +377,13 @@ const ProductView = ({
         </thead>
         <tbody>
           {fetchProduct.map((item, index) => {
-            const product = products.find((pro) => pro._id === item.product);
             return (
               <tr
                 key={index}
                 className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
               >
                 <td className="border border-gray-300 px-4 py-2 text-nowrap">
-                  {product ? product.name : "Custom Product"}(&#8377; {products.find((pro) => pro._id === item.product)?.price || item?.price})
+                  {item.product ? item.product.name : "Custom Product"}(&#8377; {item.product?.price || item?.price})
                 </td>
                 <td className="border border-gray-300 px-4 py-2">{item.quantity}</td>
                 <td className="border border-gray-300 px-4 py-2">
@@ -392,7 +406,7 @@ const ProductView = ({
           (acc, item) =>
             acc +
             item.quantity *
-              (products.find((pro) => pro._id === item.product)?.price || item?.price),
+              (item.product?.price || item?.price),
           0
         )}
       </span>

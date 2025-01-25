@@ -39,7 +39,7 @@ const Project = () => {
     },[])
     return (
         <motion.div
-            className="mt-12 bg-white rounded-lg shadow-lg mx-auto section p-6 relative z-10 "
+            className="mt-12 bg-white rounded-lg shadow-lg mx-auto section p-6 relative"
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, delay: 0.2 }}
