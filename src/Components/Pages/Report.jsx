@@ -25,8 +25,11 @@ const Report = () => {
     } else {
       const filtered = orders.filter((order) => {
         const orderDate = new Date(order.createdAt);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+
         return (
-          orderDate >= new Date(startDate) && orderDate <= new Date(endDate)
+          orderDate >= new Date(startDate) && orderDate <= new Date(end)
         );
       });
       setFilteredOrders(filtered);
