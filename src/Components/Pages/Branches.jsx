@@ -199,11 +199,11 @@ const Branches = () => {
             </tr>
           </thead>
           <tbody>
-            {getCurrentPageProducts().map((item, index) => (
+            {getCurrentPageProducts()?.length > 0 ? getCurrentPageProducts().map((item, index) => (
               <tr key={item.id}>
                 <td className="border-b px-4 py-2">{index + 1 + (currentPage - 1) * itemsPerPage}</td>
                 <td className="border-b px-4 py-2">{item.name}</td>
-                <td className="border-b px-4 py-2">{item.industry.name}</td>
+                <td className="border-b px-4 py-2">{item.industry?.name}</td>
                 <td className="border-b px-4 py-2">{item.address}</td>
                 <td className="border-b px-4 py-2">{item.city}</td>
                 <td className="border-b px-4 py-2">{item.email}</td>
@@ -226,7 +226,7 @@ const Branches = () => {
                   </button>
                 </td>
               </tr>
-            ))}
+            )): "No Branches"}
           </tbody>
         </table>
       </div>

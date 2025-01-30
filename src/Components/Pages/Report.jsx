@@ -2,30 +2,32 @@ import React, { useEffect, useState } from 'react';
 import { getAllOrders } from '../../apis/orderApi';
 import ExcelJS from 'exceljs';
 import Invoice from '../Invoice';
+import StudentInvoices from '../StudentsInvoice';
 
 const Report = () => {
   const [order, setOrder] = useState('');
   const [orders, setOrders] = useState([]);
   // const [products, setProducts] = useState([]);
   const [genInvoice,setGenInvoice] = useState(false)
+  const [getAllInovices,setGetAllInovices] = useState(false)
+
 
   const handleDownload = async () => {
     if (!order) {
       alert('Please select an order to download the report.');
       return;
     }
-
+  
     // Find the selected order
     const selectedOrder = orders.find((o) => o._id === order);
     if (!selectedOrder) {
       alert('Selected order not found.');
       return;
     }
-
+  
     // Create workbook
     const workbook = new ExcelJS.Workbook();
-
-
+  
     // Add Student List Sheet
     const studentsSheet = workbook.addWorksheet('Student List');
     studentsSheet.columns = [
@@ -39,78 +41,100 @@ const Report = () => {
       { header: 'Total Price', key: 'totalPrice', width: 15 },
       { header: 'Created At', key: 'createdAt', width: 25 },
     ];
-
+  
     // Add Product Work Sheet
     const productsSheet = workbook.addWorksheet('Product Work');
     productsSheet.columns = [
-      // { header: 'Order ID', key: 'orderId', width: 30 },
       { header: 'House', key: 'house', width: 30 },
       { header: 'Product', key: 'product', width: 30 },
       { header: 'Quantity', key: 'quantity', width: 10 },
       { header: 'Measurement', key: 'measurement', width: 30 },
       { header: 'Description', key: 'description', width: 50 },
-      // { header: 'Price', key: 'price', width: 20 },
       { header: 'Created At', key: 'createdAt', width: 25 },
     ];
-    const productMaps = []
+  
+    // Add Summary Sheet
+    const summarySheet = workbook.addWorksheet('Summary');
+    summarySheet.columns = [
+      { header: 'Payment Mode', key: 'category', width: 30 },
+      { header: 'Total Amount', key: 'total', width: 20 },
+    ];
+  
+    const productMaps = [];
+    let totalCash = 0;
+    let totalOnline = 0;
+    let overallTotal = 0;
+  
     // Populate Students Sheet
     selectedOrder.students?.forEach((student) => {
+      const paymentMethod = student.paymentDetails?.method || 'N/A';
+      const totalPrice = student.paymentDetails?.totalPrice || 0;
+  
+      // Add student data
       studentsSheet.addRow({
         name: student.name,
         class: student.class,
-        gender : student.gender,
+        gender: student.gender,
         house: student.house,
         phone: student.phone,
         school: selectedOrder.industry.name,
-        method: student.paymentDetails?.method || 'N/A',
-        totalPrice: student.paymentDetails?.totalPrice || 0,
+        method: paymentMethod,
+        totalPrice,
         createdAt: new Date(student.createdAt).toLocaleString(),
       });
-
+  
+      // Update totals
+      if (paymentMethod.toLowerCase() === 'cash') {
+        totalCash += totalPrice;
+      } else if (paymentMethod.toLowerCase() === 'online') {
+        totalOnline += totalPrice;
+      }
+      overallTotal += totalPrice;
+  
       student.products.forEach((product) => {
         const isCustomProduct = product.custom;
         const productName = isCustomProduct ? "Custom Product" : product.product?.name || "Unknown Product";
         const productPrice = product.price || product.product?.price || 0;
-
+  
         // Find an existing entry with the same product name and house
-        const existingProductIndex = productMaps.findIndex(
-          (item) =>
-          {
-            if(item.product === "Custom Product") return ;
-            item.house === student.house &&
-            item.product === productName
-          }
-        );
-
+        const existingProductIndex = productMaps.findIndex(it => it.house === student.house && it.product === productName);
         if (existingProductIndex === -1) {
-          // Add a new entry if not found
           productMaps.push({
             house: student.house,
             product: productName,
-            quantity: product.quantity, 
+            quantity: product.quantity,
             measurement: product.measurement || "-",
             description: product.description || "-",
             price: productPrice,
             createdAt: new Date(student.createdAt).toLocaleString(),
           });
         } else {
-            productMaps[existingProductIndex].quantity += product.quantity; // Update quantity for non-custom products
+          productMaps[existingProductIndex].quantity += product.quantity;
         }
       });
-
     });
-    productMaps.sort((a, b) => a.house.localeCompare(b.house));
+  
+    // Sort Products Alphabetically by House & Product
+    productMaps.sort((a, b) => a.house.localeCompare(b.house) || a.product.localeCompare(b.product));
+  
+    // Populate Product Sheet
     productMaps.forEach((product) => {
       productsSheet.addRow(product);
     });
+  
+    // Populate Summary Sheet
+    summarySheet.addRow({ category: 'Total (Cash Payments)', total: totalCash });
+    summarySheet.addRow({ category: 'Total (Online Payments)', total: totalOnline });
+    summarySheet.addRow({ category: 'Overall Total', total: overallTotal });
+  
     // Apply formatting for all sheets
-    [ studentsSheet, productsSheet].forEach((sheet) => {
+    [studentsSheet, productsSheet, summarySheet].forEach((sheet) => {
       sheet.getRow(1).font = { bold: true };
       sheet.columns.forEach((column) => {
         column.alignment = { vertical: 'middle', horizontal: 'center' };
       });
     });
-
+  
     // Generate Excel file and trigger download
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -119,6 +143,7 @@ const Report = () => {
     link.download = `Order_${selectedOrder._id}_${Date.now()}.xlsx`;
     link.click();
   };
+  
   
   useEffect(() => {
     getAllOrders()
@@ -145,7 +170,7 @@ const Report = () => {
             onChange={(e) => setOrder(e.target.value)}
             className="w-full border rounded-lg py-2 px-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           >
-            <option value="">Choose an order</option>
+            <option value="" disabled>Choose an order</option>
             {orders.map((o) => (
               <option key={o._id} value={o._id}>
                 {o.branch?.name} ({o.industry?.name})
@@ -167,6 +192,12 @@ const Report = () => {
           >
             Download Invoice
           </button>
+          <button
+            onClick={() => setGetAllInovices(true)}
+            className="w-full bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:outline-none"
+          >
+            Download Students Invoices
+          </button>
         </div>
       </div>
     </div>
@@ -178,6 +209,17 @@ const Report = () => {
         />
       </div>
     )}
+    {getAllInovices && (
+      <div className=" fixed inset-0 w-full h-full bg-black bg-opacity-50 z-50">
+        <div className=" w-full mx-auto h-full overflow-y-auto">
+          <StudentInvoices
+            students={orders.find((o) => o._id === order).students}
+            setShowInvoice={setGetAllInovices}
+          />
+        </div>
+    </div>
+    )}
+    
   </div>
   );
 };
