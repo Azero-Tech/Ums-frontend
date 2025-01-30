@@ -3,7 +3,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import Logo from "../Assets/logo01.png";
 
-const Invoice = ({ selectedOrder }) => {
+const Invoice = ({ selectedOrder,setGenInvoice }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 10;
   const [currentProducts, setCurrentProducts] = useState([]);
@@ -90,6 +90,7 @@ const Invoice = ({ selectedOrder }) => {
     }
     setCurrentPage(1)
     pdf.save("invoices.pdf");
+    setGenInvoice(false)
   };
 
   return (

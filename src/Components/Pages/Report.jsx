@@ -45,7 +45,7 @@ const Report = () => {
     // Add Product Work Sheet
     const productsSheet = workbook.addWorksheet('Product Work');
     productsSheet.columns = [
-      { header: 'House', key: 'house', width: 30 },
+      // { header: 'House', key: 'house', width: 30 },
       { header: 'Product', key: 'product', width: 30 },
       { header: 'Quantity', key: 'quantity', width: 10 },
       { header: 'Measurement', key: 'measurement', width: 30 },
@@ -97,10 +97,10 @@ const Report = () => {
         const productPrice = product.price || product.product?.price || 0;
   
         // Find an existing entry with the same product name and house
-        const existingProductIndex = productMaps.findIndex(it => it.house === student.house && it.product === productName);
+        const existingProductIndex = productMaps.findIndex(it => it.product === productName);
         if (existingProductIndex === -1) {
           productMaps.push({
-            house: student.house,
+            // house: student.house,
             product: productName,
             quantity: product.quantity,
             measurement: product.measurement || "-",
@@ -115,7 +115,7 @@ const Report = () => {
     });
   
     // Sort Products Alphabetically by House & Product
-    productMaps.sort((a, b) => a.house.localeCompare(b.house) || a.product.localeCompare(b.product));
+    productMaps.sort((a, b) =>  a.product.localeCompare(b.product));
   
     // Populate Product Sheet
     productMaps.forEach((product) => {
@@ -206,6 +206,7 @@ const Report = () => {
       <div className="bg-white p-6 rounded-lg">
         <Invoice
           selectedOrder={orders.find((o) => o._id === order)}
+          setGenInvoice = {setGenInvoice}
         />
       </div>
     )}
