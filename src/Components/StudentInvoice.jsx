@@ -121,8 +121,8 @@ const StudentInvoice = ({ student, setShowInvice }) => {
                     <td className="border border-gray-300 px-2 py-2">
                       &#8377;{" "}
                       {student.products.reduce((acc, item) => {
-                        const price = item.product?.price || item.price || 0; // Safely access item.product.price
-                        return acc + Number(price); // Ensure price is treated as a number
+                        const price = item.product?.price || item.price || 0;
+                        return acc + item.quantity * Number(price);
                       }, 0)}
                     </td>
                   </tr>
