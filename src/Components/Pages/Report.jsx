@@ -55,8 +55,10 @@ const Report = () => {
     // Add Student List Sheet
     const studentsSheet = workbook.addWorksheet("Student List");
     studentsSheet.columns = [
-      { header: "Student Name", key: "name", width: 20 },
+      { header: "Roll No", key: "rollNo", width: 20 },
+      { header: "Name", key: "name", width: 20 },
       { header: "Class", key: "class", width: 10 },
+      { header: "Division", key: "division", width: 20 },
       { header: "Gender", key: "gender", width: 10 },
       { header: "House", key: "house", width: 15 },
       { header: "Phone", key: "phone", width: 15 },
@@ -88,6 +90,7 @@ const Report = () => {
     let totalCash = 0;
     let totalOnline = 0;
     let overallTotal = 0;
+    let totalBalance = 0;
 
     // Populate Students Sheet
     selectedOrder.students?.forEach((student) => {
@@ -96,8 +99,10 @@ const Report = () => {
 
       // Add student data
       studentsSheet.addRow({
+        rollNo: student.rollNo,
         name: student.name,
         class: student.class,
+        division : student.division,
         gender: student.gender,
         house: student.house,
         phone: student.phone,
@@ -110,10 +115,16 @@ const Report = () => {
       // Update totals
       if (paymentMethod.toLowerCase() === "cash") {
         totalCash += totalPrice;
-      } else if (paymentMethod.toLowerCase() === "online") {
+      }
+      if (paymentMethod.toLowerCase() === "gpay" || paymentMethod.toLowerCase() === "online") {
         totalOnline += totalPrice;
       }
-      overallTotal += totalPrice;
+      if(paymentMethod.toLowerCase() === "balance"){
+        totalBalance += totalPrice;
+      }
+      if(paymentMethod.toLowerCase() !== "balance"){
+        overallTotal += totalPrice;
+      }
 
       student.products.forEach((product) => {
         const isCustomProduct = product.custom;
@@ -159,6 +170,10 @@ const Report = () => {
       category: "Total (Online Payments)",
       total: totalOnline,
     });
+    // summarySheet.addRow({
+    //   category: "Total Balance",
+    //   total: totalBalance,
+    // });
     summarySheet.addRow({ category: "Overall Total", total: overallTotal });
 
     // Apply formatting for all sheets

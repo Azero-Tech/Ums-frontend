@@ -39,8 +39,10 @@ const Student = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
 
   const [newStudent, setNewStudent] = useState({
+    rollNo:"",
     name: "",
     class: "",
+    division : "",
     gender: "",
     house: "",
     phone: "",
@@ -82,8 +84,10 @@ const Student = () => {
     setIsEditMode(true); // Set edit mode
     setNewStudent({
       _id: student._id,
+      rollNo : student.rollNo,
       name: student.name,
       class: student.class,
+      division : student.division,
       gender: student.gender,
       house: student.house,
       phone: student.phone,
@@ -95,8 +99,10 @@ const Student = () => {
   const handleAdd = () => {
     setIsEditMode(false); // Set add mode
     setNewStudent({
+      rollNo:"",
       name: "",
       class: "",
+      division:"",
       gender: "",
       house: "",
       phone: "",
@@ -114,8 +120,10 @@ const Student = () => {
           fetchStudents(orderId);
           setModalOpen(false);
           setNewStudent({
+            rollNo:"",
             name: "",
             class: "",
+            division:"",
             house: "",
             phone: "",
             gender: "",
@@ -134,8 +142,10 @@ const Student = () => {
           fetchStudents(orderId);
           setModalOpen(false);
           setNewStudent({
+            rollNo:"",
             name: "",
             class: "",
+            division:"",
             house: "",
             phone: "",
             gender: "",
@@ -281,10 +291,16 @@ const Student = () => {
                 S.No
               </th>
               <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
+                Roll No
+              </th>
+              <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
                 Name
               </th>
               <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
                 Class
+              </th>
+              <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
+                Division
               </th>
               <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
                 Gender
@@ -317,10 +333,16 @@ const Student = () => {
                     {index + 1}
                   </td>
                   <td className="px-4 py-2 text-gray-700 border-b capitalize break-words text-xs sm:text-sm">
+                    {student.rollNo||""}
+                  </td>
+                  <td className="px-4 py-2 text-gray-700 border-b capitalize break-words text-xs sm:text-sm">
                     {student.name}
                   </td>
                   <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">
                     {student.class}
+                  </td>
+                  <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">
+                    {student.division}
                   </td>
                   <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">
                     {student.gender}
@@ -329,7 +351,7 @@ const Student = () => {
                     {student.house}
                   </td>
                   <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">
-                    {student.phone}
+                  {student.phone.length>11 ? <p>{student.phone.slice(0,10)}<span title={student.phone}>...</span></p>:student.phone}
                   </td>
                   {user.role !== "super-admin" && (
                     <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">
@@ -414,7 +436,9 @@ const Student = () => {
           {filteredProducts.map((student) => (
             <div key={student._id} className="bg-white shadow-md p-4 rounded-lg">
               <h3 className="text-lg font-semibold">{student.name}</h3>
+              <p className="text-gray-700 text-sm">Roll No: {student.rollNo ||""}</p>
               <p className="text-gray-700 text-sm">Class: {student.class}</p>
+              <p className="text-gray-700 text-sm">Division : {student.division ||""}</p>
               <p className="text-gray-700 text-sm">Gender: {student.gender}</p>
               <p className="text-gray-700 text-sm">House: {student.house}</p>
               <p className="text-gray-700 text-sm">Phone: {student.phone}</p>
@@ -462,7 +486,7 @@ const Student = () => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-8 rounded-lg w-full max-w-3xl relative">
+          <div className="bg-white p-8 rounded-lg w-full mx-2 max-w-3xl max-h-[90vh] relative">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">
               {isEditMode ? "Edit Student" : "Add Student"}
             </h2>
@@ -483,6 +507,19 @@ const Student = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Roll No
+                  </label>
+                  <input
+                    type="text"
+                    value={newStudent.rollNo}
+                    onChange={(e) =>
+                      setNewStudent({ ...newStudent, rollNo: e.target.value })
+                    }
+                    className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Name
                   </label>
                   <input
@@ -494,7 +531,6 @@ const Student = () => {
                     className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Class
@@ -504,6 +540,19 @@ const Student = () => {
                     value={newStudent.class}
                     onChange={(e) =>
                       setNewStudent({ ...newStudent, class: e.target.value })
+                    }
+                    className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Division
+                  </label>
+                  <input
+                    type="text"
+                    value={newStudent.division}
+                    onChange={(e) =>
+                      setNewStudent({ ...newStudent, division: e.target.value })
                     }
                     className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700"
                   />

@@ -54,7 +54,7 @@ const StudentInvoices = ({ students, setShowInvoice }) => {
         students.map((student, index) => (
           <div key={index} className="mb-10">
             <div
-              className="section mx-auto p-8 bg-white max-w-[148mm] text-sm"
+              className="section mx-auto p-8 bg-white min-w-[148mm] max-w-[148mm] text-sm"
               id={`invoice-${index}`}
             >
               <div className="border-b pb-4 mb-4 flex justify-between items-center">

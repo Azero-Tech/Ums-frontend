@@ -24,14 +24,15 @@ const Invoice = ({ selectedOrder,setGenInvoice }) => {
 
           const existingProductIndex = products.findIndex(
             (item) =>
-              item.house === student.house &&
-              item.product === productName &&
-              item.price === productPrice
+              // item.house === student.house &&
+              item.product === productName 
+              // &&
+              // item.price === productPrice
           );
 
           if (existingProductIndex === -1) {
             products.push({
-              house: student.house,
+              // house: student.house,
               product: productName,
               quantity: product.quantity,
               price: productPrice,
@@ -111,7 +112,7 @@ const Invoice = ({ selectedOrder,setGenInvoice }) => {
       </div>
 
       <div
-        className="section mx-auto p-8 bg-white max-w-[148mm] text-sm"
+        className="section mx-auto p-8 bg-white min-w-[148mm] max-w-[148mm] text-sm"
         id="invoice"
       >
         <div className="border-b pb-4 mb-4 flex justify-between items-center">
@@ -144,9 +145,9 @@ const Invoice = ({ selectedOrder,setGenInvoice }) => {
                     <th className="border border-gray-300 px-2 py-2 text-left text-gray-700">
                       S.No
                     </th>
-                    <th className="border border-gray-300 px-2 py-2 text-left text-gray-700">
+                    {/* <th className="border border-gray-300 px-2 py-2 text-left text-gray-700">
                       House
-                    </th>
+                    </th> */}
                     <th className="border border-gray-300 px-2 py-2 text-left text-gray-700">
                       Product
                     </th>
@@ -167,9 +168,9 @@ const Invoice = ({ selectedOrder,setGenInvoice }) => {
                       <td className="border border-gray-300 px-2 py-2">
                         {idx + 1 + (currentPage - 1) * productsPerPage}
                       </td>
-                      <td className="border border-gray-300 px-2 py-2">
+                      {/* <td className="border border-gray-300 px-2 py-2">
                         {item.house}
-                      </td>
+                      </td> */}
                       <td className="border border-gray-300 px-2 py-2">
                         {item.product}
                       </td>
@@ -188,7 +189,7 @@ const Invoice = ({ selectedOrder,setGenInvoice }) => {
                     <tr className="bg-gray-100 font-bold">
                       <td
                         className="border border-gray-300 px-2 py-2 text-right"
-                        colSpan="5"
+                        colSpan="4"
                       >
                         Grand Total
                       </td>

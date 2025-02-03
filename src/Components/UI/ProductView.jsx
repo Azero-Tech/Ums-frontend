@@ -188,7 +188,7 @@ const ProductView = ({
 
   const paymentOptions = [
     { value: "", label: "--Select--" },
-    // { value: "online", label: "Online" },
+    { value: "balance", label: "Balance" },
     { value: "cash", label: "Cash" },
     { value: "gpay", label: "Gpay" },
     
@@ -196,7 +196,7 @@ const ProductView = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-8 rounded-lg w-full max-w-4xl relative shadow-lg h-[90vh] mx-2 overflow-y-auto">
+      <div className="bg-white p-8 rounded-lg w-full max-w-4xl relative shadow-lg max-h-[90vh] mx-2 overflow-y-auto">
         {/* Close Button */}
         <MdClose
           className="absolute right-4 top-4 cursor-pointer text-gray-600 hover:text-gray-800"
