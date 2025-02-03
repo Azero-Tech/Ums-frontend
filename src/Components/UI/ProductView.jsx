@@ -196,7 +196,7 @@ const ProductView = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-8 rounded-lg w-full max-w-2xl relative shadow-lg">
+      <div className="bg-white p-8 rounded-lg w-full max-w-4xl relative shadow-lg h-[90vh] mx-2 overflow-y-auto">
         {/* Close Button */}
         <MdClose
           className="absolute right-4 top-4 cursor-pointer text-gray-600 hover:text-gray-800"
@@ -208,27 +208,33 @@ const ProductView = ({
         {addForm && (
           <>
             <div className=" flex justify-between">
-            <h2 className="text-xl font-bold mb-4">Add Product</h2>
-            <p>Name : {studentName}</p>
+              <h2 className="text-xl font-bold mb-4">Add Product</h2>
+              <p>Name : {studentName}</p>
             </div>
             {/* Product Dropdown */}
-            <div className={`${selectedProduct === "custom" && ' grid grid-cols-2 gap-2'}`}>
-            {selectedIndustry && (
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">
-                  Product
-                </label>
-                <Select
-                  className="w-full border rounded-lg"
-                  options={options}
-                  value={options.find((opt) => opt.value === selectedProduct)}
-                  onChange={(selectedOption) => setSelectedProduct(selectedOption.value)}
-                  placeholder="--Choose a Product--"
-                  isSearchable
-                />
-              </div>
-            )}
-            {/* {selectedProduct && (
+            <div
+              className={`${
+                selectedProduct === "custom" && " grid grid-cols-2 gap-2"
+              }`}
+            >
+              {selectedIndustry && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-1">
+                    Product
+                  </label>
+                  <Select
+                    className="w-full border rounded-lg"
+                    options={options}
+                    value={options.find((opt) => opt.value === selectedProduct)}
+                    onChange={(selectedOption) =>
+                      setSelectedProduct(selectedOption.value)
+                    }
+                    placeholder="--Choose a Product--"
+                    isSearchable
+                  />
+                </div>
+              )}
+              {/* {selectedProduct && (
               <button
                 className=" p-1 absolute right-10 top-16 text-sm bg-primary rounded-md text-white"
                 onClick={() => setCustom(!custom)}
@@ -236,60 +242,60 @@ const ProductView = ({
                 Custom
               </button>
             )} */}
-            {
-              selectedProduct === "custom" &&
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">
-                  Measurement
-                </label>
-                <input
-                  type="text"
-                  className="border rounded-lg py-2 px-4 w-full"
-                  value={measurement}
-                  onChange={(e) => setMeasurement(e.target.value)}
-                />
-              </div>
-            }
-            {
-                  selectedProduct === "custom" && <div className="mb-4">
+              {selectedProduct === "custom" && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-1">
+                    Measurement
+                  </label>
+                  <input
+                    type="text"
+                    className="border rounded-lg py-2 px-4 w-full"
+                    value={measurement}
+                    onChange={(e) => setMeasurement(e.target.value)}
+                  />
+                </div>
+              )}
+              {selectedProduct === "custom" && (
+                <div className="mb-4">
                   <label className="block text-sm font-medium mb-1">
                     Price
                   </label>
                   <input
-                  type="number"
-                  className="border rounded-lg py-2 mb-4 px-4 w-full"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                />
+                    type="number"
+                    className="border rounded-lg py-2 mb-4 px-4 w-full"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                  />
+                </div>
+              )}
+              {/* Quantity Input */}
+              {selectedProduct && (
+                <div className="mb-4">
+                  <div className=" flex justify-between items-center">
+                    <label className="block text-sm font-medium mb-1">
+                      Quantity
+                    </label>
+                    {selectedProduct !== "custom" ? (
+                      <span>
+                        {quantity *
+                          products.find((pro) => pro._id === selectedProduct)
+                            .price}
+                      </span>
+                    ) : (
+                      <span>{quantity * price}</span>
+                    )}
                   </div>
-                }
-            {/* Quantity Input */}
+                  <input
+                    type="number"
+                    className="border rounded-lg py-2 px-4 w-full"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
+                  />
+                </div>
+              )}
+            </div>
             {selectedProduct && (
               <div className="mb-4">
-                <div className=" flex justify-between items-center">
-                  <label className="block text-sm font-medium mb-1">
-                    Quantity
-                  </label>
-                  {selectedProduct !== "custom" ? <span>
-                    {quantity *
-                      products.find((pro) => pro._id === selectedProduct).price}
-                  </span>:
-                  <span>
-                  {quantity*price}
-                </span>}
-                </div>
-                <input
-                  type="number"
-                  className="border rounded-lg py-2 px-4 w-full"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                />
-              </div>
-            )}
-            
-            </div>
-            {selectedProduct &&
-                <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">
                   Description ( Optional )
                 </label>
@@ -300,7 +306,7 @@ const ProductView = ({
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </div>
-              }
+            )}
             {/* Add to Cart Button */}
             {selectedProduct && quantity && (
               <button
@@ -324,10 +330,14 @@ const ProductView = ({
                       <span className="mr-auto">
                         {item.product} (x{item.quantity}){" "}
                         {item.description && <em>({item.description})</em>}
-                        {item.measurement && <>
-                          <em>({item.measurement})</em>
-                          <span className=" bg-primary text-white text-xs ml-2 rounded-md px-2 py-1">custom</span>
-                        </>}
+                        {item.measurement && (
+                          <>
+                            <em>({item.measurement})</em>
+                            <span className=" bg-primary text-white text-xs ml-2 rounded-md px-2 py-1">
+                              custom
+                            </span>
+                          </>
+                        )}
                       </span>
                       <span>&#8377; {item.totalPrice}</span>
                       <button
@@ -343,25 +353,25 @@ const ProductView = ({
                 <div className="flex justify-between font-bold">
                   <span>Total:</span>
                   <span>
-                    &#8377; {cart.reduce((acc, item) => acc + item.totalPrice, 0)}
+                    &#8377;{" "}
+                    {cart.reduce((acc, item) => acc + item.totalPrice, 0)}
                   </span>
                 </div>
               </div>
             )}
             <div className="">
-           <div>
-           <label className="block text-sm font-medium mb-1">
-              Payment Mode
-            </label>
-            <Select
-              className="w-full border rounded-md mb-2"
-              options={paymentOptions}
-              value={paymentOptions.find((opt) => opt.value === method)}
-              onChange={(selectedOption) => setMethod(selectedOption.value)}
-              placeholder="--Select--"
-            />
-
-           </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Payment Mode
+                </label>
+                <Select
+                  className="w-full border rounded-md mb-2"
+                  options={paymentOptions}
+                  value={paymentOptions.find((opt) => opt.value === method)}
+                  onChange={(selectedOption) => setMethod(selectedOption.value)}
+                  placeholder="--Select--"
+                />
+              </div>
               {/* Submit Button */}
               <button
                 className=" py-2 w-full bg-primary rounded-md text-white  text-sm font-medium"
@@ -372,59 +382,116 @@ const ProductView = ({
             </div>
           </>
         )}
-       {viewForm && fetchProduct.length > 0 && (
-  <div className="mb-6 ">
-    <h3 className="text-lg font-semibold mb-4">Products</h3>
-    <div className="">
-      <table className="table-auto w-full border-collapse border border-gray-300">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border border-gray-300 px-4 py-2 text-left">Product Name</th>
-            <th className="border border-gray-300 px-4 py-2 text-left">Quantity</th>
-            <th className="border border-gray-300 px-4 py-2 text-left">Description</th>
-            <th className="border border-gray-300 px-4 py-2 text-left">Measurement</th>
-          </tr>
-        </thead>
-        <tbody>
-          {fetchProduct.map((item, index) => {
-            return (
-              <tr
-                key={index}
-                className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
-              >
-                <td className="border border-gray-300 px-4 py-2 text-nowrap">
-                  {item.product ? item.product.name : "Custom Product"}(&#8377; {item.product?.price || item?.price})
-                </td>
-                <td className="border border-gray-300 px-4 py-2">{item.quantity}</td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {item.description || "-"}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {item.custom ? `${item.measurement}` : "-"}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-    <hr className="my-4" />
-    <div className="flex justify-between font-bold text-lg">
-      <span>Total Price:</span>
-      <span> &#8377; 
-        {fetchProduct.reduce(
-          (acc, item) =>
-            acc +
-            item.quantity *
-              (item.product?.price || item?.price),
-          0
+        {viewForm && fetchProduct.length > 0 && (
+          <div className="mb-6 ">
+            <div className=" flex justify-between">
+              <h3 className="text-lg font-semibold mb-4">Products({fetchProduct.length})</h3>
+              <div className="flex font-bold">
+                <span>Total :</span>
+                <span>
+                  &#8377; {fetchProduct.reduce(
+                  (acc, item) =>
+                    acc + item.quantity * (item.product?.price || item?.price),
+                  0
+                )}
+                </span>
+              </div>
+            </div>
+            <div className=" ">
+              <table className="table-auto w-full border-collapse border border-gray-300 hidden md:table">
+                <thead>
+                  <tr className="bg-gray-200">
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Product Name
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Quantity
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Description
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Measurement
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Total Price
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {fetchProduct.map((item, index) => {
+                    return (
+                      <tr
+                        key={index}
+                        className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                      >
+                        <td className="border border-gray-300 px-4 py-2 text-nowrap">
+                          {item.product ? item.product.name : "Custom Product"}
+                          (&#8377; {item.product?.price || item?.price})
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {item.quantity}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {item.description || "-"}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {item.custom ? `${item.measurement}` : "-"}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2 text-right">
+                          &#8377; {(item.product?.price || item?.price) * item.quantity}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <div className="md:hidden space-y-4">
+                {fetchProduct.map((item, index) => (
+                  <div
+                    key={index}
+                    className="border rounded-lg shadow-sm p-4 bg-white"
+                  >
+                    <h3>
+                      <strong>S.No:</strong> {index + 1}
+                    </h3>
+                    <h3 className="text-sm font-semibold text-gray-800">
+                      {item.product ? item.product.name : "Custom Product"}{" "}
+                      (&#8377; {item.product?.price || item?.price})
+                    </h3>
+                    <p className="text-xs text-gray-600">
+                      <strong>Quantity:</strong> {item.quantity}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      <strong>Description:</strong> {item.description || "-"}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      <strong>Measurement:</strong>{" "}
+                      {item.custom ? `${item.measurement}` : "-"}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      <strong>Total Price:</strong>{" "}
+                      &#8377; {(item.product?.price || item?.price) * item.quantity}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <hr className="my-4" />
+            {/* <div className="flex justify-between font-bold text-lg">
+              <span>Total Price:</span>
+              <span>
+                {" "}
+                &#8377;
+                {fetchProduct.reduce(
+                  (acc, item) =>
+                    acc + item.quantity * (item.product?.price || item?.price),
+                  0
+                )}
+              </span>
+            </div> */}
+          </div>
         )}
-      </span>
-    </div>
-  </div>
-)}
-
-
       </div>
     </div>
   );

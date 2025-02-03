@@ -37,7 +37,7 @@ const StudentInvoice = ({ student, setShowInvice }) => {
         </button>
       </div>
       <div
-        className="section mx-auto p-8 bg-white max-w-[148mm] text-sm"
+        className="section mx-auto p-8 bg-white min-w-[148mm] text-sm"
         id="invoice"
       >
         <div className="border-b pb-4 mb-4 flex justify-between items-center">
