@@ -16,7 +16,7 @@ const Header = ({isSidebarOpen, setIsSidebarOpen}) => {
         {!isSidebarOpen && <button onClick={()=>setIsSidebarOpen(!isSidebarOpen)} className=' text-primary text-3xl flex justify-center items-center'>
         <MdMenu />
         </button>}
-        <h1 className="text-primary text-xl md:text-2xl capitalize font-medium mr-auto">Uniform Management System</h1>
+        <h1 className="text-primary text-lg md:text-2xl capitalize font-medium mr-auto">BUZZ UMS</h1>
 
         {/* Right side: Admin Image */}
         <Link
@@ -29,7 +29,7 @@ const Header = ({isSidebarOpen, setIsSidebarOpen}) => {
             className="h-6 w-6 rounded-full object-cover border border-gray-300"  
           />
           <div>
-            <p className="text-base font-semibold capitalize text-gray-800">{user?.name}</p> {/* Reduced text size */}
+            <p className="text-xs font-semibold capitalize text-gray-800">{user?.name}</p> {/* Reduced text size */}
             <p className="text-xs text-gray-600 uppercase">{user?.role}</p> {/* Reduced sub-text size */}
           </div>
         </Link>

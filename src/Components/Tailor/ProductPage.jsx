@@ -4,12 +4,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { MdArrowBack } from "react-icons/md";
 import { getAllSizes } from "../../apis/sizeApi";
 import { getOrderById } from "../../apis/orderApi";
+import { useAuth } from "../context/AuthProvider";
 
 const ProductPage = () => {
     const { id } = useParams();
     const [groupedProducts, setGroupedProducts] = useState({});
     const [products, setProducts] = useState([]);
     const navigate = useNavigate();
+    const {setIsLoading} = useAuth()
 
     useEffect(() => {
         // Fetch all sizes
@@ -22,6 +24,7 @@ const ProductPage = () => {
 
     useEffect(() => {
         if (products.length > 0) {
+            setIsLoading(true)
             getOrderById(id)
                 .then((res) => {
                     const students = res.data.students;
@@ -52,7 +55,7 @@ const ProductPage = () => {
 
                         return acc;
                     }, {});
-
+                    setIsLoading(false)
                     setGroupedProducts(grouped);
                 })
                 .catch((err) => console.error(err));
@@ -61,7 +64,7 @@ const ProductPage = () => {
 
     return (
         <motion.div
-            className="mt-12 bg-white rounded-lg shadow-lg mx-auto section p-6"
+            className="mt-5 bg-white rounded-lg shadow-lg mx-auto section p-6"
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, delay: 0.2 }}
@@ -81,7 +84,7 @@ const ProductPage = () => {
                             House: {house.charAt(0).toUpperCase() + house.slice(1)}
                         </h3>
                         
-                        <table className="w-full border-collapse bg-white text-left text-sm text-gray-700">
+                        <table className="w-full hidden md:table border-collapse bg-white text-left text-sm text-gray-700">
                             <thead className="bg-gray-100">
                                 <tr>
                                     <th className="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider border-b">
@@ -118,6 +121,16 @@ const ProductPage = () => {
                                 ))}
                             </tbody>
                         </table>
+                        <div className="md:hidden space-y-4">
+                            {Object.values(groupedProducts[house]).map((product, index) => (
+                            <div key={index} className="bg-white shadow-md p-4 rounded-lg">
+                                <h3 className="text-lg font-semibold text-gray-800">{product.productName}</h3>
+                                <p className="text-gray-700 text-sm"><strong>Quantity:</strong> {product.quantity}</p>
+                                <p className="text-gray-700 text-sm"><strong>Measurement:</strong> {product.measurement}</p>
+                                <p className="text-gray-700 text-sm"><strong>Price:</strong> {product.price}</p>
+                            </div>
+                            ))}
+                        </div>
                     </div>
                 ))}
             </div>

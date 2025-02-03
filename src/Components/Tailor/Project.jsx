@@ -39,7 +39,7 @@ const Project = () => {
     },[])
     return (
         <motion.div
-            className="mt-12 bg-white rounded-lg shadow-lg mx-auto section p-6 relative"
+            className="mt-5 bg-white rounded-lg shadow-lg mx-auto section p-6 relative"
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, delay: 0.2 }}
@@ -47,7 +47,7 @@ const Project = () => {
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">Project List</h2>
 
             <div className="overflow-x-auto">
-                <table className="w-full border-collapse bg-white text-left text-sm text-gray-700">
+                <table className="hidden md:table w-full border-collapse bg-white text-left text-sm text-gray-700">
                     <thead className="min-w-full table-auto divide-y divide-gray-600">
                         <tr>
                             {headers.map((header, index) => (
@@ -92,6 +92,34 @@ const Project = () => {
                         "NOT ASSIGNED"}
                     </tbody>
                 </table>
+                  {/* MOBILE VIEW - CARD FORMAT */}
+                <div className="md:hidden">
+                    {getCurrentPageUsers().length > 0 ? (
+                        getCurrentPageUsers().map((order, index) => (
+                            <div key={order._id} className="bg-gray-100 rounded-lg shadow-sm p-4 mb-3">
+                                <p className="text-sm font-semibold text-gray-700">
+                                    <span className="text-gray-500">S.No:</span> {index + 1}
+                                </p>
+                                <p className="text-sm font-semibold text-gray-700">
+                                    <span className="text-gray-500">Branch:</span> {order.branch.name}
+                                </p>
+                                <p className="text-sm font-semibold text-gray-700">
+                                    <span className="text-gray-500">Institution:</span> {order.industry.name}
+                                </p>
+                                <div className="flex items-center justify-between mt-2">
+                                    <button onClick={() => navigate(`/student/${order._id}`)} className="text-blue-500 hover:text-blue-700 transition flex items-center">
+                                        Studends <ArrowRight size={16} className="ml-1" />
+                                    </button>
+                                    <button onClick={() => navigate(`/projects/${order._id}`)} className="text-blue-500 hover:text-blue-700 transition flex items-center">
+                                        Products <IoMdEye size={16} className="ml-1" />
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-center text-gray-500">NOT ASSIGNED</p>
+                    )}
+                </div>
             </div>
 
             <div className="flex justify-between items-center mt-6">

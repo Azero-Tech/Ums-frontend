@@ -7,6 +7,7 @@ import { updateStudentInOrder } from "../../apis/studentApi";
 import { toast } from "react-hot-toast";
 import { getOrderById } from "../../apis/orderApi";
 import { sendTemplateMessage } from "../../apis/apiConfig";
+import Select from "react-select";
 
 const ProductView = ({
   setProductAdd,
@@ -178,6 +179,21 @@ const ProductView = ({
       });
   };
 
+  const productOptions = products.map((product) => ({
+    value: product._id,
+    label: `${product.name} (₹${product.price})`,
+  }));
+
+  const options = [{ value: "custom", label: "Custom Product" }, ...productOptions];
+
+  const paymentOptions = [
+    { value: "", label: "--Select--" },
+    // { value: "online", label: "Online" },
+    { value: "cash", label: "Cash" },
+    { value: "gpay", label: "Gpay" },
+    
+  ];
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white p-8 rounded-lg w-full max-w-2xl relative shadow-lg">
@@ -202,19 +218,14 @@ const ProductView = ({
                 <label className="block text-sm font-medium mb-1">
                   Product
                 </label>
-                <select
-                  className="border rounded-lg py-2 px-4 w-full"
-                  value={selectedProduct}
-                  onChange={(e) => setSelectedProduct(e.target.value)}
-                >
-                  <option value="" disabled>--Choose a Product--</option>
-                  <option value="custom">Custom Product</option>
-                  {products.map((product) => (
-                    <option key={product._id} value={product._id} className=" capitalize">
-                      {product.name} (&#8377; {product.price})
-                    </option>
-                  ))}
-                </select>
+                <Select
+                  className="w-full border rounded-lg"
+                  options={options}
+                  value={options.find((opt) => opt.value === selectedProduct)}
+                  onChange={(selectedOption) => setSelectedProduct(selectedOption.value)}
+                  placeholder="--Choose a Product--"
+                  isSearchable
+                />
               </div>
             )}
             {/* {selectedProduct && (
@@ -340,17 +351,16 @@ const ProductView = ({
             <div className="">
            <div>
            <label className="block text-sm font-medium mb-1">
-                    Payment Mode
-                  </label>
-              <select
-                className=" p-2 w-full mb-2 border rounded-tl-md rounded-bl-md outline-none"
-                value={method}
-                onChange={(e) => setMethod(e.target.value)}
-              >
-                <option value="">--select--</option>
-                <option value="online">online</option>
-                <option value="cash">cash</option>
-              </select>
+              Payment Mode
+            </label>
+            <Select
+              className="w-full border rounded-md mb-2"
+              options={paymentOptions}
+              value={paymentOptions.find((opt) => opt.value === method)}
+              onChange={(selectedOption) => setMethod(selectedOption.value)}
+              placeholder="--Select--"
+            />
+
            </div>
               {/* Submit Button */}
               <button
