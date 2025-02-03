@@ -134,6 +134,7 @@ const Student = () => {
         .catch((err) => {
           console.log(err);
           toast.error(err.response?.data?.message);
+          setIsLoading(false);
         });
     } else {
       // Add new student
@@ -156,6 +157,7 @@ const Student = () => {
         .catch((err) => {
           console.log(err);
           toast.error(err.response?.data?.message);
+          setIsLoading(false);
         });
     }
   };
@@ -240,6 +242,9 @@ const Student = () => {
         {user?.role === "super-admin" && (
           <div className=" flex flex-row-reverse items-center justify-center gap-2 ml-auto mr-2">
             <div className="relative">
+              <a href="/student.xlsx" download="student.xlsx" className=" text-xs text-blue-600">
+                Sample Data click
+              </a>
               <input
                 type="file"
                 id="bulkUpload"
@@ -265,7 +270,7 @@ const Student = () => {
 
         <button
           onClick={handleAdd}
-          className="bg-primary font-medium text-white text-xs text-md px-4 py-2 rounded-md"
+          className="bg-primary font-medium text-white text-xs md:text-base px-4 py-2 rounded-md"
         >
           Add Student
         </button>
@@ -486,7 +491,7 @@ const Student = () => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-8 rounded-lg w-full mx-2 max-w-3xl max-h-[90vh] relative">
+          <div className="bg-white p-8 rounded-lg w-full mx-2 max-w-3xl max-h-[90vh] overflow-y-auto relative">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">
               {isEditMode ? "Edit Student" : "Add Student"}
             </h2>
