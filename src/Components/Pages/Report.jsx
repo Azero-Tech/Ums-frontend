@@ -25,14 +25,21 @@ const Report = () => {
       setFilteredOrders(orders);
     } else {
       const filtered = orders.filter((order) => {
-        const orderDate = new Date(order.createdAt);
+        const start = new Date(startDate);
         const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999);
-
-        return (
-          orderDate >= new Date(startDate) && orderDate <= new Date(end)
-        );
+        end.setHours(23, 59, 59, 999); // Ensure full-day coverage
+      
+        // Check if any student has a payment date within the range
+        const hasValidPayment = order.students?.some((student) => {
+          if (!student.paymentDetails?.date) return false; // Skip if no payment date
+          const paymentDate = new Date(student.paymentDetails.date);
+          return paymentDate >= start && paymentDate <= end;
+        });
+      
+        return hasValidPayment;
       });
+      
+      
       setFilteredOrders(filtered);
     }
   }, [startDate, endDate, orders]);
@@ -114,18 +121,18 @@ const Report = () => {
       });
 
       // Update totals
-      if (paymentMethod.toLowerCase() === "cash") {
+      if (paymentMethod.toLowerCase() === "cash"||paymentMethod.toLowerCase() === "balance") {
         totalCash += totalPrice;
       }
       if (paymentMethod.toLowerCase() === "gpay" || paymentMethod.toLowerCase() === "online") {
         totalOnline += totalPrice;
       }
-      if(paymentMethod.toLowerCase() === "balance"){
-        totalBalance += totalPrice;
-      }
-      if(paymentMethod.toLowerCase() !== "balance"){
+      // if(paymentMethod.toLowerCase() === "balance"){
+      //   totalBalance += totalPrice;
+      // }
+      // if(paymentMethod.toLowerCase() !== "balance"){
         overallTotal += totalPrice;
-      }
+      // }
 
       student.products.forEach((product) => {
         const isCustomProduct = product.custom;
@@ -204,6 +211,29 @@ const Report = () => {
         </h1>
 
         <div className="space-y-4">
+          <div>
+            <label
+              htmlFor="order"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Select Order
+            </label>
+            <select
+              id="order"
+              value={order}
+              onChange={(e) => setOrder(e.target.value)}
+              className="w-full border rounded-lg py-2 px-4"
+            >
+              <option value="" disabled>
+                Choose an order
+              </option>
+              {filteredOrders.map((o) => (
+                <option key={o._id} value={o._id}>
+                  {o.branch?.name} ({o.industry?.name})
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="flex justify-between space-x-4">
             <div className=" w-full">
               <label
@@ -234,30 +264,6 @@ const Report = () => {
               />
             </div>
           </div>
-          <div>
-            <label
-              htmlFor="order"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Select Order
-            </label>
-            <select
-              id="order"
-              value={order}
-              onChange={(e) => setOrder(e.target.value)}
-              className="w-full border rounded-lg py-2 px-4"
-            >
-              <option value="" disabled>
-                Choose an order
-              </option>
-              {filteredOrders.map((o) => (
-                <option key={o._id} value={o._id}>
-                  {o.branch?.name} ({o.industry?.name}) - ({customDate(o.createdAt)}) 
-                </option>
-              ))}
-            </select>
-          </div>
-
           <div className="flex flex-col gap-2">
             <button
               onClick={handleDownload}
