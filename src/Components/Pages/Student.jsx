@@ -243,7 +243,7 @@ const Student = () => {
           <div className=" flex flex-row-reverse items-center justify-center gap-2 ml-auto mr-2">
             <div className="relative">
               <a href="/student.xlsx" download="student.xlsx" className=" text-xs text-blue-600">
-                Sample Data click
+                Download Sample Data
               </a>
               <input
                 type="file"
@@ -360,11 +360,11 @@ const Student = () => {
                   </td>
                   {user.role !== "super-admin" && (
                     <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">
-                      {student.paymentDetails ? (
+                      {student.paymentDetails && student.paymentDetails.totalPrice ? (
                         <span>
                           {" "}
-                          &#8377; {student.paymentDetails.totalPrice}(
-                          {student.paymentDetails.method})
+                          &#8377; {student.paymentDetails.totalPrice}({student.paymentDetails.method})
+                          {/* {student.paymentDetails.balance>0 && <span>balance:  &#8377; {student.paymentDetails.balance}</span>} */}
                         </span>
                       ) : (
                         "not yet"
@@ -449,13 +449,18 @@ const Student = () => {
               <p className="text-gray-700 text-sm">Phone: {student.phone}</p>
               {user.role !== "super-admin" && (
                 <p className="text-gray-700 text-sm">
-                  Payment: {student.paymentDetails ? (
+                  Payment: {student.paymentDetails && student.paymentDetails.totalPrice ? (
                     <span>&#8377; {student.paymentDetails.totalPrice} ({student.paymentDetails.method})</span>
                   ) : (
                     "Not yet"
                   )}
                 </p>
               )}
+              {user.role !== "super-admin" && student.paymentDetails && student.paymentDetails.balance > 0 &&
+                <p className="text-gray-700 text-sm">
+                  Balance :<span>&#8377; {student.paymentDetails.balance}</span>
+                </p>
+              }
               <div className="mt-2 flex space-x-3">
                 {user?.role === "super-admin" ? (
                   <>

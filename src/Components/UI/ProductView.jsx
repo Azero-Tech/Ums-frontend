@@ -34,7 +34,7 @@ const ProductView = ({
   const [method, setMethod] = useState("");
   const [price, setPrice] = useState("");
   const [measurement, setMeasurement] = useState("");
-
+  const [amount,setAmount] = useState(0)
   // Fetch Industry Types on Mount
   // useEffect(() => {
   //   getAllTypes()
@@ -149,10 +149,12 @@ const ProductView = ({
       products: productsToSubmit,
       paymentDetails: {
         method,
-        totalPrice: student.paymentDetails
+        balance : (student.paymentDetails && student.paymentDetails.totalPrice ? student.paymentDetails.totalPrice + totalPrice: totalPrice)-amount,
+        totalPrice: student.paymentDetails && student.paymentDetails.totalPrice
           ? student.paymentDetails.totalPrice + totalPrice
           : totalPrice,
         date: Date.now(),
+        payments : student.paymentDetails ? [...student.paymentDetails.payments,{amount,method}]:[{amount,method}]
       },
     })
       .then((res) => {
@@ -171,6 +173,41 @@ const ProductView = ({
         // };
         // sendTemplateMessage(payload).then((res)=>toast.success(res.message)).catch(err=>console.log(err))
         toast.success('product add successfully')
+        setProductAdd(false)
+      })
+      .catch((err) => {
+        console.log(err)
+        toast.error('soming went worng')
+      });
+  };
+
+  const payBalance = () => {
+    const student = order?.students?.find(student=>student._id===studentId)
+   
+    updateStudentInOrder(orderId, studentId, {
+      paymentDetails: {
+        method: student.paymentDetails?.method,
+        totalPrice: student.paymentDetails?.totalPrice,
+        balance : 0,
+        payments : student.paymentDetails ? [...student.paymentDetails.payments,{amount:student.paymentDetails.balance,method:"balance"}]:[{amount,method}]
+      },
+    })
+      .then((res) => {
+        // const payload = {
+        //   to:  `+91${student.phone}`, // Replace with the recipient's phone number
+        //   recipient_type: "individual",
+        //   type: "template",
+        //   template: {
+        //     language: {
+        //       policy: "deterministic",
+        //       code: "en",
+        //     },
+        //     name: "school_order_completion",
+        //     components: [],
+        //   },
+        // };
+        // sendTemplateMessage(payload).then((res)=>toast.success(res.message)).catch(err=>console.log(err))
+        toast.success('Balance pay successfully')
         setProductAdd(false)
       })
       .catch((err) => {
@@ -372,6 +409,23 @@ const ProductView = ({
                   placeholder="--Select--"
                 />
               </div>
+              {
+                method && 
+                <div className="mb-4">
+                  <div className=" flex justify-between">
+                    <label className="block text-sm font-medium mb-1">
+                      Amount
+                    </label>
+                    <p>balance :  &#8377;<span>{(cart.reduce((acc, item) => acc + item.totalPrice, 0)) - amount}</span></p>
+                  </div>
+                  <input
+                    type="number"
+                    className="border rounded-lg py-2 mb-4 px-4 w-full"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                </div>
+              }
               {/* Submit Button */}
               <button
                 className=" py-2 w-full bg-primary rounded-md text-white  text-sm font-medium"
@@ -379,6 +433,12 @@ const ProductView = ({
               >
                 Submit
               </button>
+              { order?.students?.find(student=>student._id===studentId).paymentDetails?.balance > 0 && <button
+                className=" py-2 w-full bg-primary rounded-md text-white  text-sm font-medium mt-2"
+                onClick={payBalance}
+              >
+                Pay Balance &#8377; {order.students.find(student=>student._id===studentId).paymentDetails.balance}
+              </button>}
             </div>
           </>
         )}
