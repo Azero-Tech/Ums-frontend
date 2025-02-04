@@ -3,6 +3,7 @@ import { getAllOrders } from "../../apis/orderApi";
 import ExcelJS from "exceljs";
 import Invoice from "../Invoice";
 import StudentInvoices from "../StudentsInvoice";
+import { customDate } from "../../utils/dateFormat";
 
 const Report = () => {
   const [order, setOrder] = useState("");
@@ -251,7 +252,7 @@ const Report = () => {
               </option>
               {filteredOrders.map((o) => (
                 <option key={o._id} value={o._id}>
-                  {o.branch?.name} ({o.industry?.name})
+                  {o.branch?.name} ({o.industry?.name}) - ({customDate(o.createdAt)}) 
                 </option>
               ))}
             </select>

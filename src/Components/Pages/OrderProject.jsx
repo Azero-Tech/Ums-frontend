@@ -14,6 +14,7 @@ import {
 import { getAllTailors } from "../../apis/tailorApi";
 import {useAuth} from '../context/AuthProvider'
 import toast from "react-hot-toast";
+import { customDate } from "../../utils/dateFormat";
 
 const OrderProject = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -173,7 +174,7 @@ const OrderProject = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  const headers = ["S.No", "Branch", "Institution"];
+  const headers = ["S.No", "Branch", "Institution","Created At"];
   const actions = (row) => (
     <div className="flex gap-2">
       <button
@@ -279,6 +280,7 @@ const OrderProject = () => {
                   <td className="px-4 py-2 border-b">
                     {user.industry.name} ({user.industryType?.type})
                   </td>
+                  <td className="px-4 py-2 border-b">{customDate(user.createdAt)}</td>
                   {/* <td className="px-4 py-2 border-b">{user.status}</td> */}
                   <td className="px-4 py-2 border-b">{actions(user)}</td>
                   <td className="px-4 py-2 border-b">{studentAction(user)}</td>
@@ -358,7 +360,7 @@ const OrderProject = () => {
               {newOrder.industryType && (
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    Instration
+                    Institution
                   </label>
                   <select
                     value={newOrder.industry}
