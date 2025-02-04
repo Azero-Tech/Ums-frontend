@@ -304,9 +304,9 @@ const Student = () => {
               <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
                 Class
               </th>
-              <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
+              {/* <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
                 Division
-              </th>
+              </th> */}
               <th className="px-4 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider">
                 Gender
               </th>
@@ -344,11 +344,11 @@ const Student = () => {
                     {student.name}
                   </td>
                   <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">
-                    {student.class}
+                    {student.class}-({student.division})
                   </td>
-                  <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">
+                  {/* <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">
                     {student.division}
-                  </td>
+                  </td> */}
                   <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">
                     {student.gender}
                   </td>

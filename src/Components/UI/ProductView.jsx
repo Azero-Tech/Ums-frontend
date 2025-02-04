@@ -8,6 +8,7 @@ import { toast } from "react-hot-toast";
 import { getOrderById } from "../../apis/orderApi";
 import { sendTemplateMessage } from "../../apis/apiConfig";
 import Select from "react-select";
+import ProductDropdown from "../ProductDropdown"
 
 const ProductView = ({
   setProductAdd,
@@ -149,7 +150,7 @@ const ProductView = ({
       products: productsToSubmit,
       paymentDetails: {
         method,
-        balance : (student.paymentDetails && student.paymentDetails.totalPrice ? student.paymentDetails.totalPrice + totalPrice: totalPrice)-amount,
+        balance : totalPrice-amount,
         totalPrice: student.paymentDetails && student.paymentDetails.totalPrice
           ? student.paymentDetails.totalPrice + totalPrice
           : totalPrice,
@@ -236,7 +237,7 @@ const ProductView = ({
       <div className="bg-white p-8 rounded-lg w-full max-w-4xl relative shadow-lg min-h-[90vh] max-h-[90vh] mx-2 overflow-y-auto">
         {/* Close Button */}
         <MdClose
-          className="absolute right-4 top-4 cursor-pointer text-gray-600 hover:text-gray-800"
+          className="absolute right-4 top-4 cursor-pointer text-2xl text-gray-600 hover:text-gray-800"
           onClick={() =>
             addForm ? setProductAdd(false) : setProductView(false)
           }
@@ -255,21 +256,7 @@ const ProductView = ({
               }`}
             >
               {selectedIndustry && (
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Product
-                  </label>
-                  <Select
-                    className="w-full border rounded-lg"
-                    options={options}
-                    value={options.find((opt) => opt.value === selectedProduct)}
-                    onChange={(selectedOption) =>
-                      setSelectedProduct(selectedOption.value)
-                    }
-                    placeholder="--Choose a Product--"
-                    isSearchable
-                  />
-                </div>
+                 <ProductDropdown products={products} selectedProduct={selectedProduct} setSelectedProduct={setSelectedProduct}/>
               )}
               {/* {selectedProduct && (
               <button

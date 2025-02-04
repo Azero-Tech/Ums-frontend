@@ -4,6 +4,7 @@ import { login, resetPassword } from "../../apis/authApi";  // Assuming you impo
 import logo from "../../Assets/logo01.png";
 import { useAuth } from "../context/AuthProvider";
 import toast from "react-hot-toast";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -18,6 +19,7 @@ const Login = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
     const {isLogin,user,setUser,setLogin} = useAuth()
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleForgotPasswordSubmit = async (e) => {
         e.preventDefault();
@@ -99,18 +101,27 @@ const Login = () => {
                                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
-                        <div className="form-group">
+                        <div className="form-group relative">
                             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                                 Password
                             </label>
-                            <input
-                                type="password"
-                                id="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
+                            <div className="relative w-full">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    id="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-2 flex items-center px-2 text-gray-600 hover:text-gray-800"
+                                >
+                                    {showPassword ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
+                                </button>
+                            </div>
                         </div>
                         <button
                             type="button"
