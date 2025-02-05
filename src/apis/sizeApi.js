@@ -49,3 +49,8 @@ export const uploadBulkSizes = async(data)=>{
     const response = await axiosInstance.patch(`/sizes/excel`,data);
     return response.data;
 }
+
+export const multiDeleteProducts = async(data)=>{
+    const response = await axiosInstance.put(`/sizes/multi-delete`,data);
+    return response.data;
+}

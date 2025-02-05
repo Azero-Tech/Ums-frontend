@@ -31,7 +31,7 @@ const Report = () => {
       
         // Check if any student has a payment date within the range
         const hasValidPayment = order.students?.some((student) => {
-          if (!student.paymentDetails?.date) return false; // Skip if no payment date
+          if (!student.paymentDetails?.date) return false;
           const paymentDate = new Date(student.paymentDetails.date);
           return paymentDate >= start && paymentDate <= end;
         });
@@ -50,13 +50,21 @@ const Report = () => {
       return;
     }
 
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999); 
     // Find the selected order
     const selectedOrder = orders.find((o) => o._id === order);
     if (!selectedOrder) {
       alert("Selected order not found.");
       return;
     }
-
+    const filteredStudents = selectedOrder?.students?.filter((student) => {
+      if (!student.paymentDetails?.date) return false; // Skip students with no payment date
+      const paymentDate = new Date(student.paymentDetails.date);
+      return paymentDate >= start && paymentDate <= end;
+    }) || []; 
+    selectedOrder.students = filteredStudents
     // Create workbook
     const workbook = new ExcelJS.Workbook();
 
@@ -153,7 +161,7 @@ const Report = () => {
             measurement: product.measurement || "-",
             description: product.description || "-",
             price: productPrice,
-            createdAt: new Date(student.createdAt).toLocaleString(),
+            createdAt: new Date(student.paymentDetails?.date).toLocaleString(),
           });
         } else {
           productMaps[existingProductIndex].quantity += product.quantity;

@@ -160,16 +160,37 @@ const ProductView = ({
     })
       .then((res) => {
         const payload = {
-          to:  `+91${student.phone}`, // Replace with the recipient's phone number
-          recipient_type: "individual",
+          to: `+91${student.phone}`, // Replace with the recipient's phone number
           type: "template",
           template: {
             language: {
               policy: "deterministic",
-              code: "en",
+              code: "en_US",
             },
-            name: "school_order_completion",
-            components: [],
+            name: "order_invoice_v2",
+            components: [
+              {
+                type: "body",
+                parameters: [
+                  {
+                    type: "text",
+                    text: student.name,
+                  },
+                  {
+                    type: "text",
+                    text: productsToSubmit.map(item => `- ${products.find(it=>it._id===item.product).name} (Qty: ${item.quantity}, ₹${products.find(it=>it._id===item.product).price})`).join(", "),
+                  },
+                  {
+                    type: "text",
+                    text: totalPrice,
+                  },
+                  {
+                    type: "text",
+                    text: method,
+                  },
+                ],
+              },
+            ],
           },
         };
         sendTemplateMessage(payload).then().catch(err=>console.log(err))

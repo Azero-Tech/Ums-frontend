@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Edit, Search, Trash2, ChevronLeft, ChevronRight, X, Upload } from "lucide-react";
 import { Switch } from "@mui/material";
-import { createSize, getAllSizes, updateSize, deleteSize, uploadBulkSizes } from "../../apis/sizeApi";
+import { createSize, getAllSizes, updateSize, deleteSize, uploadBulkSizes, multiDeleteProducts } from "../../apis/sizeApi";
 import Mapping from '../Pages/Mapping';
 import { getAllIndustries, getIndustriesByType } from "../../apis/industryApi";
 import { getAllTypes } from "../../apis/industryTypeApi";
@@ -29,6 +29,7 @@ const SizeType = () => {
     const [selectedIndustry, setSelectedIndustry] = useState(''); // Selected industry for bulk upload
     const [selectedInstitution, setSelectedInstitution] = useState('');
     const [isBulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
+    const [selectedProducts, setSelectedProducts] = useState([]);
     const {setIsLoading} = useAuth()
 
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -198,6 +199,48 @@ const SizeType = () => {
         }
     };
 
+    // Handle checkbox change
+    const handleRowCheckboxChange = (productId) => {
+        setSelectedProducts((prevSelected) => {
+            if (prevSelected.includes(productId)) {
+                return prevSelected.filter((id) => id !== productId);
+            } else {
+                return [...prevSelected, productId];
+            }
+        });
+    };
+
+    // Handle master checkbox change
+    const handleMasterCheckboxChange = () => {
+        if (selectedProducts.length === sizes.length) {
+            setSelectedProducts([]);
+        } else {
+            setSelectedProducts(sizes.map((product) => product._id));
+        }
+    };
+
+    const handleDeleteSelected = () => {
+        const isConfirmed = window.confirm("Are you sure you want to delete the selected products?");
+        
+        if (isConfirmed) {
+            const remainingProducts = sizes.filter(
+                (product) => !selectedProducts.includes(product._id)
+            );
+            setIsLoading(true)
+            multiDeleteProducts({sizes:selectedProducts}).then((res)=>{
+                toast.success(res.message)
+                setSizes(remainingProducts);
+                setFilteredProducts(remainingProducts);
+            }).catch((err)=>{console.log(err)
+                toast.error("Something went wrong!!")
+            }).finally(()=>{
+                setIsLoading(false)
+            })
+            
+            setSelectedProducts([]);
+        }
+    };
+    
     return (
         <motion.div
             className="mt-12 bg-white rounded-md shadow-md mx-auto section p-5 relative"
@@ -217,6 +260,20 @@ const SizeType = () => {
                         value={searchTerm}
                     />
                 </div>
+                {
+                    selectedProducts.length > 0 &&
+                    <button className="text-black border border-gray-300 px-4 py-2 rounded-lg cursor-pointer flex items-center gap-2 hover:bg-gray-200"
+                        onClick={handleMasterCheckboxChange}>
+                        Multi Select
+                    </button>
+                }
+                {
+                    selectedProducts.length > 0 &&
+                    <button className="text-black border border-gray-300 px-4 py-2 rounded-lg cursor-pointer flex items-center gap-2 hover:bg-gray-200"
+                        onClick={handleDeleteSelected}>
+                        Delete All
+                    </button>
+                }
                 <div className="flex items-center gap-4">
                     <div className="relative">
                         <button className="text-black border border-gray-300 px-4 py-2 rounded-lg cursor-pointer flex items-center gap-2 hover:bg-gray-200"
@@ -250,7 +307,14 @@ const SizeType = () => {
                     <tbody>
                         {getCurrentPageProducts().map((row, index) => (
                             <tr key={index} className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
-                                <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+                                <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">
+                                    {index + 1 + (currentPage - 1) * itemsPerPage} 
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedProducts.includes(row._id)}
+                                        onChange={() => handleRowCheckboxChange(row._id)}
+                                    />
+                                </td>
                                 <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{row.name}</td>
                                 <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{row.industry?.name}({row.industryType?.type})</td>
                                 <td className="px-4 py-2 text-gray-700 border-b break-words text-xs sm:text-sm">{row.price}</td>
