@@ -159,20 +159,20 @@ const ProductView = ({
       },
     })
       .then((res) => {
-        // const payload = {
-        //   to:  `+91${student.phone}`, // Replace with the recipient's phone number
-        //   recipient_type: "individual",
-        //   type: "template",
-        //   template: {
-        //     language: {
-        //       policy: "deterministic",
-        //       code: "en",
-        //     },
-        //     name: "school_order_completion",
-        //     components: [],
-        //   },
-        // };
-        // sendTemplateMessage(payload).then((res)=>toast.success(res.message)).catch(err=>console.log(err))
+        const payload = {
+          to:  `+91${student.phone}`, // Replace with the recipient's phone number
+          recipient_type: "individual",
+          type: "template",
+          template: {
+            language: {
+              policy: "deterministic",
+              code: "en",
+            },
+            name: "school_order_completion",
+            components: [],
+          },
+        };
+        sendTemplateMessage(payload).then().catch(err=>console.log(err))
         toast.success('product add successfully')
         setProductAdd(false)
       })
