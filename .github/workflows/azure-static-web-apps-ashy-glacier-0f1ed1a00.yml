@@ -33,7 +33,7 @@ jobs:
           output_location: "build" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
         env:
-          REACT_APP_BASEURL: "https://ums-backend-ereyf5fjfxd9d6bn.southindia-01.azurewebsites.net"
+          REACT_APP_BASEURL: "https://api.buzzuniforms.com"
           REACT_APP_WABA_API_KEY : "65577883bb0b4b121b309c3a"
           REACT_APP_PHONE_NUMBER_ID : "155063837698561"
 
