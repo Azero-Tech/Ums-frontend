@@ -167,11 +167,15 @@ const ProductView = ({
               policy: "deterministic",
               code: "en_US",
             },
-            name: "order_invoice_v2",
+            name: "order_invoice_v3",
             components: [
               {
                 type: "body",
                 parameters: [
+                  {
+                    type: "text",
+                    text: student._id,
+                  },
                   {
                     type: "text",
                     text: student.name,
