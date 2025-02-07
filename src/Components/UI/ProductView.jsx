@@ -174,7 +174,7 @@ const ProductView = ({
                 parameters: [
                   {
                     type: "text",
-                    text: student._id,
+                    text: `INV-${Math.floor(100000 + Math.random() * 900000)}`,
                   },
                   {
                     type: "text",
