@@ -25,7 +25,7 @@ const Invoice = ({ selectedOrder,setGenInvoice }) => {
           const existingProductIndex = products.findIndex(
             (item) =>
               // item.house === student.house &&
-              item.product === productName 
+              item.product === productName && productName !== "Custom Product"
               // &&
               // item.price === productPrice
           );

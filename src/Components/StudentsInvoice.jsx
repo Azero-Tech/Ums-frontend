@@ -103,7 +103,7 @@ const StudentInvoices = ({ students, setShowInvoice }) => {
                               {idx + 1}
                             </td>
                             <td className="border border-gray-300 px-2 py-2 capitalize">
-                              {item.product?.name || "custom products"}
+                              {item.product?.name || "custom product"}
                             </td>
                             <td className="border border-gray-300 px-2 py-2">
                               {item.quantity}

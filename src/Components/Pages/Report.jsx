@@ -106,7 +106,7 @@ const Report = () => {
     let totalCash = 0;
     let totalOnline = 0;
     let overallTotal = 0;
-    let totalBalance = 0;
+    let totalCG = 0;
 
     // Populate Students Sheet
     selectedOrder.students?.forEach((student) => {
@@ -135,9 +135,9 @@ const Report = () => {
       if (paymentMethod.toLowerCase() === "gpay" || paymentMethod.toLowerCase() === "online") {
         totalOnline += totalPrice;
       }
-      // if(paymentMethod.toLowerCase() === "balance"){
-      //   totalBalance += totalPrice;
-      // }
+      if(paymentMethod.toLowerCase() === "cash & gpay"){
+        totalCG += totalPrice;
+      }
       // if(paymentMethod.toLowerCase() !== "balance"){
         overallTotal += totalPrice;
       // }
@@ -151,7 +151,7 @@ const Report = () => {
 
         // Find an existing entry with the same product name and house
         const existingProductIndex = productMaps.findIndex(
-          (it) => it.product === productName
+          (it) => it.product === productName && productName !== "Custom Product"
         );
         if (existingProductIndex === -1) {
           productMaps.push({
@@ -185,6 +185,10 @@ const Report = () => {
     summarySheet.addRow({
       category: "Total (Online Payments)",
       total: totalOnline,
+    });
+    summarySheet.addRow({
+      category: "Total (Cash & Gpay Payments)",
+      total: totalCG,
     });
     // summarySheet.addRow({
     //   category: "Total Balance",

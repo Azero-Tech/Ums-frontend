@@ -17,6 +17,11 @@ export const updateStudentInOrder = async (orderId, studentId, data) => {
     return response.data;
 };
 
+export const updateStudentProducts = async (orderId, studentId, data) => {
+    const response = await axiosInstance.patch(`/orders/${orderId}/students/${studentId}/product`, data);
+    return response.data;
+};
+
 // Remove a student from an order
 export const removeStudentFromOrder = async (orderId, studentId) => {
     const response = await axiosInstance.delete(`/orders/${orderId}/students/${studentId}`);

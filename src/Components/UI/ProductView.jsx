@@ -3,7 +3,7 @@ import { MdClose, MdDelete } from "react-icons/md";
 import { getAllSizesByIndustry } from "../../apis/sizeApi";
 import { getAllTypes } from "../../apis/industryTypeApi";
 import { getIndustriesByType } from "../../apis/industryApi";
-import { updateStudentInOrder } from "../../apis/studentApi";
+import { updateStudentInOrder, updateStudentProducts } from "../../apis/studentApi";
 import { toast } from "react-hot-toast";
 import { getOrderById } from "../../apis/orderApi";
 import { sendTemplateMessage } from "../../apis/apiConfig";
@@ -35,6 +35,8 @@ const ProductView = ({
   const [method, setMethod] = useState("");
   const [price, setPrice] = useState("");
   const [measurement, setMeasurement] = useState("");
+  const [cashAmount, setCashAmount] = useState(0);
+  const [gpayAmount, setGpayAmount] = useState(0);
   const [amount,setAmount] = useState(0)
   // Fetch Industry Types on Mount
   // useEffect(() => {
@@ -146,16 +148,16 @@ const ProductView = ({
     //   },
     // });
    
-    updateStudentInOrder(orderId, studentId, {
+    updateStudentProducts(orderId, studentId, {
       products: productsToSubmit,
       paymentDetails: {
         method,
-        balance : totalPrice-amount,
+        balance : method === "cash & gpay" ? totalPrice - (cashAmount+gpayAmount) : totalPrice-amount,
         totalPrice: student.paymentDetails && student.paymentDetails.totalPrice
           ? student.paymentDetails.totalPrice + totalPrice
           : totalPrice,
         date: Date.now(),
-        payments : student.paymentDetails ? [...student.paymentDetails.payments,{amount,method}]:[{amount,method}]
+        payments : method === "cash & gpay"? [...student.paymentDetails.payments,{amount:cashAmount,method:"cash"},{amount:gpayAmount,method:"gpay"}] : [...student.paymentDetails.payments,{amount,method}]
       },
     })
       .then((res) => {
@@ -182,7 +184,7 @@ const ProductView = ({
                   },
                   {
                     type: "text",
-                    text: productsToSubmit.map(item => `- ${products.find(it=>it._id===item.product).name} (Qty: ${item.quantity}, ₹${products.find(it=>it._id===item.product).price})`).join(", "),
+                    text: productsToSubmit.map(item => `- ${products.find(it=>it._id===item.product)?.name||"Custom Product"} (Qty: ${item.quantity}, ₹${products.find(it=>it._id===item.product)?.price||item.price})`).join(", "),
                   },
                   {
                     type: "text",
@@ -210,7 +212,7 @@ const ProductView = ({
   const payBalance = () => {
     const student = order?.students?.find(student=>student._id===studentId)
    
-    updateStudentInOrder(orderId, studentId, {
+    updateStudentProducts(orderId, studentId, {
       paymentDetails: {
         method: student.paymentDetails?.method,
         totalPrice: student.paymentDetails?.totalPrice,
@@ -254,7 +256,7 @@ const ProductView = ({
     { value: "balance", label: "Balance" },
     { value: "cash", label: "Cash" },
     { value: "gpay", label: "Gpay" },
-    
+    { value: "cash & gpay", label: "Cash & Gpay" },
   ];
 
   return (
@@ -422,7 +424,7 @@ const ProductView = ({
                 />
               </div>
               {
-                method && 
+                method !== "cash & gpay" ? method !== "" &&
                 <div className="mb-4">
                   <div className=" flex justify-between">
                     <label className="block text-sm font-medium mb-1">
@@ -435,7 +437,45 @@ const ProductView = ({
                     className="border rounded-lg py-2 mb-4 px-4 w-full"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
+                    min="0"
                   />
+                </div> :
+                <div className="mb-4">
+                  <div className="mb-2">
+                    <label className="block text-sm font-medium">Cash Payment</label>
+                    <input
+                      type="number"
+                      className="border rounded-lg py-2 px-4 w-full"
+                      value={cashAmount}
+                      onChange={(e) => setCashAmount(Number(e.target.value))}
+                      min="0"
+                    />
+                  </div>
+            
+                  <div className="mb-2">
+                    <label className="block text-sm font-medium">GPay Payment</label>
+                    <input
+                      type="number"
+                      className="border rounded-lg py-2 px-4 w-full"
+                      value={gpayAmount}
+                      onChange={(e) => setGpayAmount(Number(e.target.value))}
+                      min="0"
+                    />
+                  </div>
+            
+                  <div className="flex justify-between mt-2">
+                    <p className="text-sm font-medium">
+                      Balance: ₹<span className={(cart.reduce((acc, item) => acc + item.totalPrice, 0)) - (cashAmount+gpayAmount) < 0 ? "text-red-500" : ""}>
+                        {(cart.reduce((acc, item) => acc + item.totalPrice, 0)) - (cashAmount+gpayAmount)}
+                      </span>
+                    </p>
+                  </div>
+            
+                  {(cart.reduce((acc, item) => acc + item.totalPrice, 0)) - (cashAmount+gpayAmount) !== 0 && (
+                    <p className="text-red-600 text-sm mt-2">
+                      Please ensure the total amount matches exactly.
+                    </p>
+                  )}
                 </div>
               }
               {/* Submit Button */}
