@@ -165,7 +165,7 @@ const ProductView = ({
           template: {
             language: {
               policy: "deterministic",
-              code: "en_US",
+              code: "en",
             },
             name: "order_invoice_v3",
             components: [
