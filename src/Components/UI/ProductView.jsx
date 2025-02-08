@@ -188,7 +188,7 @@ const ProductView = ({
                   },
                   {
                     type: "text",
-                    text: totalPrice,
+                    text: method === "cash & gpay"?`${totalPrice}(Paid:${cashAmount+gpayAmount},Balance:${totalPrice-(cashAmount+gpayAmount)})`:`${totalPrice}(Paid:${amount},Balance:${totalPrice-amount})`,
                   },
                   {
                     type: "text",
