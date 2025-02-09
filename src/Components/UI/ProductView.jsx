@@ -124,10 +124,24 @@ const ProductView = ({
   // Handle Submit
   const handleSubmit = () => {
     if (cart.length === 0) {
-      setError("Please add products to the cart");
+      toast.error("Please add products to the cart");
       return;
     }
+
     const student = order.students.find(student=>student._id===studentId)
+
+    if (method === "cash" || method === "gpay") {
+      if (amount <= 0 || amount < totalPrice) {
+        toast.error("Please enter a valid amount that covers the total price.");
+        return;
+      }
+    } else if (method === "cash & gpay") {
+      const totalPaid = cashAmount + gpayAmount;
+      if (totalPaid <= 0 || totalPaid < totalPrice) {
+        toast.error("Please ensure the total cash and GPay amount covers the total price.");
+        return;
+      }
+    }
     const productsToSubmit = cart.map((item) => ({
       product: item.productId === "custom" ? null :item.productId ,
       quantity: item.quantity,

@@ -106,13 +106,17 @@ const Report = () => {
     let totalCash = 0;
     let totalOnline = 0;
     let overallTotal = 0;
-    let totalCG = 0;
-
+    let totalBalance = 0;
+    let totalUnpaidBalance =0;
     // Populate Students Sheet
     selectedOrder.students?.forEach((student) => {
       const paymentMethod = student.paymentDetails?.method || "N/A";
       const totalPrice = student.paymentDetails?.totalPrice || 0;
-
+      const totalUnPaid = student.paymentDetails?.balance || 0;
+      const cashPrices = student.paymentDetails?.payments.filter(payment => payment.method === "cash").reduce((total, payment) => total + payment.amount, 0)
+      const gpayPrices = student.paymentDetails?.payments.filter(payment => payment.method === "gpay").reduce((total, payment) => total + payment.amount, 0)
+      const balancePrices = student.paymentDetails?.payments.filter(payment => payment.method === "balance").reduce((total, payment) => total + payment.amount, 0)
+      
       // Add student data
       studentsSheet.addRow({
         rollNo: student.rollNo,
@@ -128,18 +132,24 @@ const Report = () => {
         createdAt: new Date(student.createdAt).toLocaleString(),
       });
 
+      totalCash += cashPrices;
+      totalOnline += gpayPrices;
+      totalBalance += balancePrices;
+      overallTotal += totalPrice;
+      totalUnpaidBalance += totalUnPaid;
+
       // Update totals
-      if (paymentMethod.toLowerCase() === "cash"||paymentMethod.toLowerCase() === "balance") {
-        totalCash += totalPrice;
-      }
-      if (paymentMethod.toLowerCase() === "gpay" || paymentMethod.toLowerCase() === "online") {
-        totalOnline += totalPrice;
-      }
-      if(paymentMethod.toLowerCase() === "cash & gpay"){
-        totalCG += totalPrice;
-      }
+      // if (paymentMethod.toLowerCase() === "cash"||paymentMethod.toLowerCase() === "balance") {
+      //   totalCash += totalPrice;
+      // }
+      // if (paymentMethod.toLowerCase() === "gpay" || paymentMethod.toLowerCase() === "online") {
+      //   totalOnline += totalPrice;
+      // }
+      // if(paymentMethod.toLowerCase() === "cash & gpay"){
+      //   totalCG += totalPrice;
+      // }
       // if(paymentMethod.toLowerCase() !== "balance"){
-        overallTotal += totalPrice;
+      //   overallTotal += totalPrice;
       // }
 
       student.products.forEach((product) => {
@@ -183,17 +193,21 @@ const Report = () => {
       total: totalCash,
     });
     summarySheet.addRow({
-      category: "Total (Online Payments)",
+      category: "Total (GPay Payments)",
       total: totalOnline,
     });
-    summarySheet.addRow({
-      category: "Total (Cash & Gpay Payments)",
-      total: totalCG,
-    });
     // summarySheet.addRow({
-    //   category: "Total Balance",
-    //   total: totalBalance,
+    //   category: "Total (Cash & Gpay Payments)",
+    //   total: totalCG,
     // });
+    summarySheet.addRow({
+      category: "Total (Balance Paid)",
+      total: totalBalance,
+    });
+    summarySheet.addRow({
+      category: "Total (Balance Unpaid)",
+      total: totalUnpaidBalance,
+    });
     summarySheet.addRow({ category: "Overall Total", total: overallTotal });
 
     // Apply formatting for all sheets
