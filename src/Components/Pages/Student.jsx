@@ -92,6 +92,7 @@ const Student = () => {
       gender: student.gender,
       house: student.house,
       phone: student.phone,
+      sPhone : student.sPhone
       // products: student.products.map((pro)=>pro._id),
     });
     setModalOpen(true);
@@ -107,6 +108,7 @@ const Student = () => {
       gender: "",
       house: "",
       phone: "",
+      sPhone:""
       // products: [],
     });
     setModalOpen(true);
@@ -128,6 +130,7 @@ const Student = () => {
             house: "",
             phone: "",
             gender: "",
+            sPhone:""
           });
           setIsLoading(false);
           toast.success(res.message);
@@ -151,6 +154,7 @@ const Student = () => {
             house: "",
             phone: "",
             gender: "",
+            sPhone:""
           });
           setIsLoading(false);
           toast.success(res.message);
