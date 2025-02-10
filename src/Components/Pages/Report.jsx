@@ -79,8 +79,12 @@ const Report = () => {
       { header: "House", key: "house", width: 15 },
       { header: "Phone", key: "phone", width: 15 },
       { header: "School", key: "school", width: 15 },
-      { header: "Payment Method", key: "method", width: 15 },
+      { header: "Cash Paid", key: "cash", width: 15 },
+      { header: "GPay Paid", key: "gpay", width: 15 },
+      { header: "Balance Paid", key: "balance", width: 15 },
+      { header: "Unpaid Amount", key: "unpaid", width: 15 },
       { header: "Total Price", key: "totalPrice", width: 15 },
+      { header: "Ordered At", key: "orderAt", width: 25 },
       { header: "Created At", key: "createdAt", width: 25 },
     ];
 
@@ -127,8 +131,12 @@ const Report = () => {
         house: student.house,
         phone: student.phone,
         school: selectedOrder.industry.name,
-        method: paymentMethod,
+        cash: cashPrices,
+        gpay: gpayPrices,
+        balance : balancePrices,
+        unpaid : student.paymentDetails?.balance,
         totalPrice,
+        orderAt : new Date(student.paymentDetails?.date).toLocaleString(),
         createdAt: new Date(student.createdAt).toLocaleString(),
       });
 

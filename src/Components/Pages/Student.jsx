@@ -369,7 +369,7 @@ const Student = () => {
                         <span>
                           {" "}
                           &#8377; {student.paymentDetails.totalPrice}({student.paymentDetails.method})
-                          {/* {student.paymentDetails.balance>0 && <span>balance:  &#8377; {student.paymentDetails.balance}</span>} */}
+                          {student.paymentDetails.balance>0 && <div className=" w-2 h-2 rounded-full bg-red-600"></div>}
                         </span>
                       ) : (
                         "not yet"

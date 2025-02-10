@@ -38,6 +38,7 @@ const ProductView = ({
   const [cashAmount, setCashAmount] = useState(0);
   const [gpayAmount, setGpayAmount] = useState(0);
   const [amount,setAmount] = useState(0)
+  const [balanceMethod,setBalanceMethod] = useState("")
   // Fetch Industry Types on Mount
   // useEffect(() => {
   //   getAllTypes()
@@ -127,20 +128,25 @@ const ProductView = ({
       toast.error("Please add products to the cart");
       return;
     }
-
+    const total = cart.reduce((acc, item) => acc + item.totalPrice, 0)
     const student = order.students.find(student=>student._id===studentId)
 
     if (method === "cash" || method === "gpay") {
-      if (amount <= 0 || amount < totalPrice) {
+      if (amount <= 0 || amount > total) {
         toast.error("Please enter a valid amount that covers the total price.");
         return;
       }
     } else if (method === "cash & gpay") {
       const totalPaid = cashAmount + gpayAmount;
-      if (totalPaid <= 0 || totalPaid < totalPrice) {
+      if (totalPaid <= 0 || totalPaid > total) {
         toast.error("Please ensure the total cash and GPay amount covers the total price.");
         return;
       }
+    }
+    const isConfirm = window.confirm("Are you sure to pay")
+    if(!isConfirm){
+      setProductAdd(false)
+      return;
     }
     const productsToSubmit = cart.map((item) => ({
       product: item.productId === "custom" ? null :item.productId ,
@@ -223,15 +229,20 @@ const ProductView = ({
       });
   };
 
-  const payBalance = () => {
+  const payGpayBalance = () => {
     const student = order?.students?.find(student=>student._id===studentId)
-   
+    const isConfirm = window.confirm("Are you sure to pay balance in gpay")
+    if(!isConfirm){
+      setProductAdd(false)
+      return 
+    }
     updateStudentProducts(orderId, studentId, {
       paymentDetails: {
         method: student.paymentDetails?.method,
         totalPrice: student.paymentDetails?.totalPrice,
         balance : 0,
-        payments : student.paymentDetails ? [...student.paymentDetails.payments,{amount:student.paymentDetails.balance,method:"balance"}]:[{amount,method}]
+        date: student.paymentDetails?.date,
+        payments : student.paymentDetails ? [...student.paymentDetails.payments,{amount:student.paymentDetails.balance,method:"gpay"}]:[{amount,method}]
       },
     })
       .then((res) => {
@@ -249,7 +260,47 @@ const ProductView = ({
         //   },
         // };
         // sendTemplateMessage(payload).then((res)=>toast.success(res.message)).catch(err=>console.log(err))
-        toast.success('Balance pay successfully')
+        toast.success('Balance Gpay successfully')
+        setProductAdd(false)
+      })
+      .catch((err) => {
+        console.log(err)
+        toast.error('soming went worng')
+      });
+  };
+
+  const payCashBalance = () => {
+    const student = order?.students?.find(student=>student._id===studentId)
+    const isConfirm = window.confirm("Are you sure to pay balance in cash")
+    if(!isConfirm){
+      setProductAdd(false)
+      return 
+    }
+    updateStudentProducts(orderId, studentId, {
+      paymentDetails: {
+        method: student.paymentDetails?.method,
+        totalPrice: student.paymentDetails?.totalPrice,
+        balance : 0,
+        date: student.paymentDetails?.date,
+        payments : student.paymentDetails ? [...student.paymentDetails.payments,{amount:student.paymentDetails.balance,method:"cash"}]:[{amount,method}]
+      },
+    })
+      .then((res) => {
+        // const payload = {
+        //   to:  `+91${student.phone}`, // Replace with the recipient's phone number
+        //   recipient_type: "individual",
+        //   type: "template",
+        //   template: {
+        //     language: {
+        //       policy: "deterministic",
+        //       code: "en",
+        //     },
+        //     name: "school_order_completion",
+        //     components: [],
+        //   },
+        // };
+        // sendTemplateMessage(payload).then((res)=>toast.success(res.message)).catch(err=>console.log(err))
+        toast.success('Balance cash pay successfully')
         setProductAdd(false)
       })
       .catch((err) => {
@@ -267,7 +318,7 @@ const ProductView = ({
 
   const paymentOptions = [
     { value: "", label: "--Select--" },
-    { value: "balance", label: "Balance" },
+    // { value: "balance", label: "Balance" },
     { value: "cash", label: "Cash" },
     { value: "gpay", label: "Gpay" },
     { value: "cash & gpay", label: "Cash & Gpay" },
@@ -484,12 +535,6 @@ const ProductView = ({
                       </span>
                     </p>
                   </div>
-            
-                  {(cart.reduce((acc, item) => acc + item.totalPrice, 0)) - (cashAmount+gpayAmount) !== 0 && (
-                    <p className="text-red-600 text-sm mt-2">
-                      Please ensure the total amount matches exactly.
-                    </p>
-                  )}
                 </div>
               }
               {/* Submit Button */}
@@ -499,12 +544,49 @@ const ProductView = ({
               >
                 Submit
               </button>
-              { order?.students?.find(student=>student._id===studentId).paymentDetails?.balance > 0 && <button
-                className=" py-2 w-full bg-primary rounded-md text-white  text-sm font-medium mt-2"
-                onClick={payBalance}
-              >
-                Pay Balance &#8377; {order.students.find(student=>student._id===studentId).paymentDetails.balance}
-              </button>}
+              { order?.students?.find(student=>student._id===studentId).paymentDetails?.balance > 0 && 
+              <>
+             <div className="p-2 w-full bg-primary rounded-md text-white text-sm font-medium mt-2 flex gap-3">
+              Pay Balance ₹
+              {order.students.find((student) => student._id === studentId)?.paymentDetails.balance}
+              <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="gpay"
+                  onChange={() => setBalanceMethod("gpay")}
+                />
+                GPay
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="cash"
+                  onChange={() => setBalanceMethod("cash")}
+                />
+                Cash
+             </div>
+            
+              {balanceMethod === "gpay" && (
+                <button
+                  className="py-2 w-full bg-primary rounded-md text-white text-sm font-medium mt-2"
+                  onClick={payGpayBalance}
+                >
+                  Pay Balance with GPay ₹
+                  {order.students.find((student) => student._id === studentId)?.paymentDetails.balance}
+                </button>
+              )}
+            
+              {balanceMethod === "cash" && (
+                <button
+                  className="py-2 w-full bg-primary rounded-md text-white text-sm font-medium mt-2"
+                  onClick={payCashBalance}
+                >
+                  Pay Balance with Cash ₹
+                  {order.students.find((student) => student._id === studentId)?.paymentDetails.balance}
+                </button>
+              )}
+            </>
+            
+              }
             </div>
           </>
         )}
