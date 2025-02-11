@@ -100,15 +100,50 @@ const StudentInvoice = ({ student, setShowInvice }) => {
                       </td>
                     </tr>
                   ))}
+                 { student.paymentDetails?.payments?.some(payment => payment.method === "cash") &&
+                   <tr className="bg-gray-100 font-bold">
+                   <td colSpan={3} className="border border-gray-300 px-4 py-3 text-right">
+                     Payment
+                   </td>
+                   <td className="border border-gray-300 px-4 py-3 text-center">
+                     <span className="">Cash</span>
+                   </td>
+                   <td className="border border-gray-300 px-2 py-2 text-right font-semibold">
+                     &#8377;{" "}{student.paymentDetails?.payments
+                       .filter(payment => payment.method === "cash")
+                       .reduce((total, payment) => total + payment.amount, 0)}
+                   </td>
+                   
+                 </tr>
+                 }
+                  {
+                     student.paymentDetails?.payments?.some(payment => payment.method === "gpay") &&
+                     <tr className="bg-gray-100 font-bold">
+                       {!student.paymentDetails?.payments?.every(payment => payment.method === "gpay") ?
+                        <td colSpan={3}></td>
+                       :<td colSpan={3} className="border border-gray-300 px-4 py-3 text-right">
+                        Payment
+                      </td>}
+                       <td className="border border-gray-300 px-4 py-3 text-center">
+                         <span className="">GPay</span>
+                       </td>
+                       <td className="border border-gray-300 px-2 py-2 text-right font-semibold">
+                         &#8377;{" "}{student.paymentDetails?.payments
+                           .filter(payment => payment.method === "gpay")
+                           .reduce((total, payment) => total + payment.amount, 0)}
+                       </td>
+                       
+                     </tr>
+                  }
                   <tr className="bg-gray-100 font-bold">
                     <td
                       className="border border-gray-300 px-2 py-2 text-right"
                       colSpan="4"
                     >
-                      Payment mode
+                      Balance Amount
                     </td>
-                    <td className="border border-gray-300 px-2 py-2">
-                    {student.paymentDetails.method}
+                    <td className="border border-gray-300 text-right px-2 py-2">
+                      &#8377;{" "}{student.paymentDetails?.balance}
                     </td>
                   </tr>
                   <tr className="bg-gray-100 font-bold">
@@ -118,7 +153,7 @@ const StudentInvoice = ({ student, setShowInvice }) => {
                     >
                       Grand Total
                     </td>
-                    <td className="border border-gray-300 px-2 py-2">
+                    <td className="border border-gray-300 text-right px-2 py-2">
                       &#8377;{" "}
                       {student.products.reduce((acc, item) => {
                         const price = item.product?.price || item.price || 0;
