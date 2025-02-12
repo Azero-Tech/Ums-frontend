@@ -220,6 +220,47 @@ const ProductView = ({
           },
         };
         sendTemplateMessage(payload).then().catch(err=>console.log(err))
+        if(student.sPhone){
+          const payload = {
+            to: `+91${student.sPhone}`, // Replace with the recipient's phone number
+            type: "template",
+            template: {
+              language: {
+                policy: "deterministic",
+                code: "en",
+              },
+              name: "order_invoice_v3",
+              components: [
+                {
+                  type: "body",
+                  parameters: [
+                    {
+                      type: "text",
+                      text: `INV-${Math.floor(100000 + Math.random() * 900000)}`,
+                    },
+                    {
+                      type: "text",
+                      text: student.name,
+                    },
+                    {
+                      type: "text",
+                      text: productsToSubmit.map(item => `- ${products.find(it=>it._id===item.product)?.name||"Custom Product"} (Qty: ${item.quantity}, ₹${products.find(it=>it._id===item.product)?.price||item.price})`).join(", "),
+                    },
+                    {
+                      type: "text",
+                      text: method === "cash & gpay"?`${totalPrice}(Paid:${cashAmount+gpayAmount},Balance:${totalPrice-(cashAmount+gpayAmount)})`:`${totalPrice}(Paid:${amount},Balance:${totalPrice-amount})`,
+                    },
+                    {
+                      type: "text",
+                      text: method,
+                    },
+                  ],
+                },
+              ],
+            },
+          };
+          sendTemplateMessage(payload).then().catch(err=>console.log(err))
+        }
         toast.success('product add successfully')
         setProductAdd(false)
       })
