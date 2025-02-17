@@ -75,7 +75,8 @@ const SizeType = () => {
         } else {
             // Apply filter based on search term
             const filtered = sizes.filter((product) =>
-                product.name.toLowerCase().includes(term)
+                product.name.toLowerCase().includes(term)||
+                product.industry?.name.toLowerCase().includes(term)
             );
             setFilteredProducts(filtered);
         }
