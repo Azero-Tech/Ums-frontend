@@ -22,7 +22,7 @@ const Project = () => {
         return list.slice(start, start + itemsPerPage);
     };
 
-    const headers = ["S.No","Branch", "Institution","Student", "Products"];
+    const headers = ["S.No","Branch", "Institution","Student"];
 
     useEffect(()=>{
         if(user){
@@ -78,15 +78,7 @@ const Project = () => {
                                         <ArrowRight size={16} />
                                     </button>
                                 </td>
-                                <td className="px-6 py-4 border-b">
-                                    <button
-                                        onClick={() => navigate(`/projects/${order._id}`)}
-                                        className="flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition"
-                                    >
-                                        {/* <span>View</span> */}
-                                        <IoMdEye size={16} />
-                                    </button>
-                                </td>
+                                
                             </tr>
                         )):
                         "NOT ASSIGNED"}
@@ -110,9 +102,9 @@ const Project = () => {
                                     <button onClick={() => navigate(`/student/${order._id}`)} className="text-blue-500 hover:text-blue-700 transition flex items-center">
                                         Studends <ArrowRight size={16} className="ml-1" />
                                     </button>
-                                    <button onClick={() => navigate(`/projects/${order._id}`)} className="text-blue-500 hover:text-blue-700 transition flex items-center">
+                                    {/* <button onClick={() => navigate(`/projects/${order._id}`)} className="text-blue-500 hover:text-blue-700 transition flex items-center">
                                         Products <IoMdEye size={16} className="ml-1" />
-                                    </button>
+                                    </button> */}
                                 </div>
                             </div>
                         ))

@@ -79,6 +79,7 @@ const Report = () => {
       { header: "House", key: "house", width: 15 },
       { header: "Phone", key: "phone", width: 15 },
       { header: "School", key: "school", width: 15 },
+      { header: "Products", key: "products", width: 50 },
       { header: "Cash Paid", key: "cash", width: 15 },
       { header: "GPay Paid", key: "gpay", width: 15 },
       // { header: "Balance Paid", key: "balance", width: 15 },
@@ -131,6 +132,11 @@ const Report = () => {
         house: student.house,
         phone: student.phone,
         school: selectedOrder.industry.name,
+        products : student.products?.map(pro=>{
+          const productName = pro.product ? pro.product.name : "Custom Product"
+          const productPrice = pro.product ? pro.product.price : pro.price
+          return `${productName}(qty-${pro.quantity})(₹ ${productPrice})`
+        }).join(",\n"),
         cash: cashPrices,
         gpay: gpayPrices,
         // balance : balancePrices,
@@ -222,8 +228,8 @@ const Report = () => {
     [studentsSheet, productsSheet, summarySheet].forEach((sheet) => {
       sheet.getRow(1).font = { bold: true };
       sheet.columns.forEach((column) => {
-        column.alignment = { vertical: "middle", horizontal: "center" };
-      });
+        column.alignment = { vertical: "middle", horizontal: "left", wrapText: true };
+      });      
     });
 
     // Generate Excel file and trigger download
@@ -311,12 +317,12 @@ const Report = () => {
             >
               Download Invoice
             </button>
-            <button
+            {/* <button
               onClick={() => setGetAllInvoices(true)}
               className="w-full bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700"
             >
               Download Students Invoices
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
