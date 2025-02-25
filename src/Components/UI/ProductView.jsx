@@ -156,7 +156,17 @@ const ProductView = ({
       custom : item.productId === "custom",
       description: item.description,
     }));
+
     const totalPrice = cart.reduce((acc, item) => acc + item.totalPrice, 0);
+
+    const resultTotal = productsToSubmit.reduce((acc, pro) => {
+      const price = products.find(p => p._id === pro.product);
+      return acc + (price ? price.price * pro.quantity : pro.price * pro.quantity);
+    }, 0);
+
+    if(totalPrice!==resultTotal){
+      return toast.error("Something went wrong with the quantity!!!")
+    }
     // console.log({
     //   products: [...student.products, ...productsToSubmit],
     //   paymentDetails: {
@@ -263,6 +273,16 @@ const ProductView = ({
         }
         toast.success('product add successfully')
         setProductAdd(false)
+        // Reset other relevant states if necessary
+        setCart([]); // Clear the cart
+        setSelectedProduct(""); // Reset selected product
+        setQuantity(""); // Reset quantity
+        setDescription(""); // Reset description
+        setMethod(""); // Reset payment method
+        setCashAmount(0); // Reset cash amount
+        setGpayAmount(0); // Reset GPay amount
+        setAmount(0); // Reset total amount
+        setBalanceMethod(""); // Reset balance payment method
       })
       .catch((err) => {
         console.log(err)
