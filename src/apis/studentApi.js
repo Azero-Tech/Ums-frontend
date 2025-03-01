@@ -17,6 +17,11 @@ export const updateStudentInOrder = async (orderId, studentId, data) => {
     return response.data;
 };
 
+export const updateProductInStudent = async (orderId, studentId, data) => {
+    const response = await axiosInstance.put(`/orders/${orderId}/students/${studentId}/pro`, data);
+    return response.data;
+};
+
 export const updateStudentProducts = async (orderId, studentId, data) => {
     const response = await axiosInstance.patch(`/orders/${orderId}/students/${studentId}/product`, data);
     return response.data;

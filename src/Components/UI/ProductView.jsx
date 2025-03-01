@@ -3,12 +3,13 @@ import { MdClose, MdDelete } from "react-icons/md";
 import { getAllSizesByIndustry } from "../../apis/sizeApi";
 import { getAllTypes } from "../../apis/industryTypeApi";
 import { getIndustriesByType } from "../../apis/industryApi";
-import { updateStudentInOrder, updateStudentProducts } from "../../apis/studentApi";
+import { updateProductInStudent, updateStudentInOrder, updateStudentProducts } from "../../apis/studentApi";
 import { toast } from "react-hot-toast";
 import { getOrderById } from "../../apis/orderApi";
 import { sendTemplateMessage } from "../../apis/apiConfig";
 import Select from "react-select";
 import ProductDropdown from "../ProductDropdown"
+import { Edit, Trash2 } from "lucide-react";
 
 const ProductView = ({
   setProductAdd,
@@ -39,6 +40,10 @@ const ProductView = ({
   const [gpayAmount, setGpayAmount] = useState(0);
   const [amount,setAmount] = useState(0)
   const [balanceMethod,setBalanceMethod] = useState("")
+  const [editModel,setEditModel] = useState({
+    edit : false,
+    data : null
+  })
   // Fetch Industry Types on Mount
   // useEffect(() => {
   //   getAllTypes()
@@ -384,7 +389,7 @@ const ProductView = ({
     { value: "gpay", label: "Gpay" },
     { value: "cash & gpay", label: "Cash & Gpay" },
   ];
-
+  console.log(editModel.data)
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white p-8 rounded-lg w-full max-w-4xl relative shadow-lg min-h-[90vh] max-h-[90vh] mx-2 overflow-y-auto">
@@ -685,6 +690,9 @@ const ProductView = ({
                     <th className="border border-gray-300 px-4 py-2 text-left">
                       Total Price
                     </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Action
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -709,6 +717,20 @@ const ProductView = ({
                         </td>
                         <td className="border border-gray-300 px-4 py-2 text-right">
                           &#8377; {(item.product?.price || item?.price) * item.quantity}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2 flex gap-2 text-right">
+                          <button className="text-blue-600" onClick={()=>{
+                            setEditModel({
+                              edit : true,
+                              data : item
+                            })
+                            
+                          }}>
+                            <Edit size={18} />
+                          </button>
+                          {/* <button  className="text-red-600">
+                            <Trash2 size={18} />
+                          </button> */}
                         </td>
                       </tr>
                     );
@@ -742,6 +764,20 @@ const ProductView = ({
                       <strong>Total Price:</strong>{" "}
                       &#8377; {(item.product?.price || item?.price) * item.quantity}
                     </p>
+                    <div className=" mt-2 flex gap-4">
+                      <button className="text-blue-600" onClick={()=>{
+                            setEditModel({
+                              edit : true,
+                              data : item
+                            })
+                            
+                          }}>
+                        <Edit size={18} />
+                      </button>
+                      {/* <button  className="text-red-600">
+                        <Trash2 size={18} />
+                      </button> */}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -762,8 +798,159 @@ const ProductView = ({
           </div>
         )}
       </div>
+      {
+        editModel.edit &&
+        <EditProductModal  
+          editModel={editModel} 
+          setEditModel={setEditModel} 
+          handleSubmit={()=>{
+            const isConfirm = window.confirm('Are you sure to edit')
+            if(!isConfirm)return; 
+            updateProductInStudent(orderId,studentId,{...editModel.data,id:editModel.data._id}).then(
+              res => {toast.success(res.message)
+                setEditModel({edit:false,data:null})
+              }
+
+            ).catch(err=>{
+              toast.error(err?.response?.data?.message)
+            })
+          }} 
+          studentId={studentId} order={order}/>
+      }
     </div>
   );
 };
 
 export default ProductView;
+
+const EditProductModal = ({ editModel, setEditModel, handleSubmit,studentId,order }) => {
+  if (!editModel.edit) return null;
+
+  const { data } = editModel;
+  if (!data) return null; // Ensure data exists
+  const student = order.students.find(stu=>stu._id===studentId)
+  const  cashPrice = student.paymentDetails?.payments.filter(pay=>pay.method==="cash").reduce((acc,cur)=>{
+    return acc+cur.amount
+  },0) ; 
+  const  gpayPrice = student.paymentDetails?.payments.filter(pay=>pay.method==="gpay").reduce((acc,cur)=>{
+    return acc+cur.amount
+  },0) ; 
+  // Function to handle state updates safely
+  const updateField = (field, value) => {
+    setEditModel((prev) => ({
+      ...prev,
+      data: { ...prev.data, [field]: value },
+    }));
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 px-2 bg-black bg-opacity-50 flex justify-center items-center h-screen">
+      <div className="bg-white h-[90vh] p-4 w-full max-w-lg rounded-md shadow-lg">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Edit Product</h2>
+          <button
+            className="p-1 text-gray-600 hover:text-black"
+            onClick={() => setEditModel({ edit: false, data: null })}
+          >
+            <MdClose size={24} />
+          </button>
+        </div>
+
+        {/* Product Name */}
+        <h1 className="mb-2">
+          Product Name: {data.product ? data.product.name : "Custom Product"}
+        </h1>
+
+        {/* Custom Product Fields */}
+        {!data.product && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Measurement</label>
+              <input
+                type="text"
+                className="border rounded-lg py-2 px-4 w-full"
+                value={data.measurement || ""}
+                onChange={(e) => updateField("measurement", e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Price</label>
+              <input
+                type="number"
+                className="border rounded-lg py-2 px-4 w-full"
+                value={data.price || ""}
+                onChange={(e) => updateField("price", Number(e.target.value))}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Quantity Input */}
+        <div className="mb-4">
+          <div className="flex justify-between items-center">
+            <label className="block text-sm font-medium">Quantity</label>
+            <span className="font-semibold">
+              ₹{(data.quantity || 0) * (data.product?.price || data.price || 0)}
+            </span>
+          </div>
+          <input
+            type="number"
+            className="border rounded-lg py-2 px-4 w-full"
+            value={data.quantity}
+            onChange={(e) => updateField("quantity", e.target.value)}
+            min={0}
+          />
+        </div>
+
+        {/* Description */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium">Description (Optional)</label>
+          <textarea
+            className="border rounded-lg py-2 px-4 w-full"
+            value={data.description || ""}
+            onChange={(e) => updateField("description", e.target.value)}
+          />
+        </div>
+
+        {/* Payment Method */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Payment Method</label>
+          <div className="flex gap-4">
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="cash"
+                checked={data.paymentMethod === "cash"}
+                onChange={() => updateField("paymentMethod", "cash")}
+                className="mr-2"
+              />
+              Cash (curr : {cashPrice})
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="gpay"
+                checked={data.paymentMethod === "gpay"}
+                onChange={() => updateField("paymentMethod", "gpay")}
+                className="mr-2"
+              />
+              GPay (curr : {gpayPrice})
+            </label>
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          className="py-2 w-full bg-primary rounded-md text-white text-sm font-medium"
+          onClick={handleSubmit}
+        >
+          Update
+        </button>
+      </div>
+    </div>
+  );
+};
+
