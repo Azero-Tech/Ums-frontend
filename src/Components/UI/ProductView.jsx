@@ -389,7 +389,7 @@ const ProductView = ({
     { value: "gpay", label: "Gpay" },
     { value: "cash & gpay", label: "Cash & Gpay" },
   ];
-  console.log(editModel.data)
+  // console.log(editModel.data)
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white p-8 rounded-lg w-full max-w-4xl relative shadow-lg min-h-[90vh] max-h-[90vh] mx-2 overflow-y-auto">
@@ -807,8 +807,10 @@ const ProductView = ({
             const isConfirm = window.confirm('Are you sure to edit')
             if(!isConfirm)return; 
             updateProductInStudent(orderId,studentId,{...editModel.data,id:editModel.data._id}).then(
-              res => {toast.success(res.message)
+              res => {
                 setEditModel({edit:false,data:null})
+                setProductView(false)
+                toast.success(res.message)
               }
 
             ).catch(err=>{

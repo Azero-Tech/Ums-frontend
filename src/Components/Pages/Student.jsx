@@ -395,6 +395,12 @@ const Student = () => {
                       </>
                     ) : (
                       <>
+                      <button
+                          onClick={() => handleEdit(student)}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          <Edit size={18} />
+                        </button>
                         <button
                           onClick={() => {
                             setSelectedStudent(student);
