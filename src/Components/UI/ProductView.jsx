@@ -137,7 +137,7 @@ const ProductView = ({
     const student = order.students.find(student=>student._id===studentId)
 
     if (method === "cash" || method === "gpay") {
-      if (amount <= 0 || amount > total) {
+      if (amount < -1 || amount > total) {
         toast.error("Please enter a valid amount that covers the total price.");
         return;
       }
