@@ -36,7 +36,7 @@ const ProductDropdown = ({
     <div className="mb-4">
       <label className="block text-sm font-medium mb-1">Product</label>
 
-      <select ref={selectRef} className="border rounded-lg py-2 px-4 w-full">
+      <select ref={selectRef} className="border rounded-lg py-2 px-4 w-full" value={selectedProduct}>
         <option value="" selected disabled>-- Choose a Product --</option>
         <option value="custom">Custom Product</option>
         {products.map((product) => (

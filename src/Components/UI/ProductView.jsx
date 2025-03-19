@@ -802,20 +802,22 @@ const ProductView = ({
         editModel.edit &&
         <EditProductModal  
           editModel={editModel} 
+          products={products}
           setEditModel={setEditModel} 
           handleSubmit={()=>{
             const isConfirm = window.confirm('Are you sure to edit')
             if(!isConfirm)return; 
-            updateProductInStudent(orderId,studentId,{...editModel.data,id:editModel.data._id}).then(
-              res => {
-                setEditModel({edit:false,data:null})
-                setProductView(false)
-                toast.success(res.message)
-              }
+            console.log(editModel.data)
+            // updateProductInStudent(orderId,studentId,{...editModel.data,id:editModel.data._id}).then(
+            //   res => {
+            //     setEditModel({edit:false,data:null})
+            //     setProductView(false)
+            //     toast.success(res.message)
+            //   }
 
-            ).catch(err=>{
-              toast.error(err?.response?.data?.message)
-            })
+            // ).catch(err=>{
+            //   toast.error(err?.response?.data?.message)
+            // })
           }} 
           studentId={studentId} order={order}/>
       }
@@ -825,10 +827,12 @@ const ProductView = ({
 
 export default ProductView;
 
-const EditProductModal = ({ editModel, setEditModel, handleSubmit,studentId,order }) => {
+const EditProductModal = ({ editModel, setEditModel,products, handleSubmit,studentId,order }) => {
   if (!editModel.edit) return null;
 
   const { data } = editModel;
+  const [sel,setSel] = useState(data?.product?._id || "custom")
+
   if (!data) return null; // Ensure data exists
   const student = order.students.find(stu=>stu._id===studentId)
   const  cashPrice = student.paymentDetails?.payments.filter(pay=>pay.method==="cash").reduce((acc,cur)=>{
@@ -844,6 +848,12 @@ const EditProductModal = ({ editModel, setEditModel, handleSubmit,studentId,orde
       data: { ...prev.data, [field]: value },
     }));
   };
+  
+  const product = products.find(pro=>pro._id===sel)
+
+  useEffect(()=>{
+    updateField('product',product ? product._id : null)
+  },[product])
 
   return (
     <div className="fixed inset-0 z-50 px-2 bg-black bg-opacity-50 flex justify-center items-center h-screen">
@@ -861,11 +871,13 @@ const EditProductModal = ({ editModel, setEditModel, handleSubmit,studentId,orde
 
         {/* Product Name */}
         <h1 className="mb-2">
-          Product Name: {data.product ? data.product.name : "Custom Product"}
+          <ProductDropdown products={products} selectedProduct={sel} setSelectedProduct={setSel}/>
+
+          Product Name: {product ? product.name : "Custom Product"}
         </h1>
 
         {/* Custom Product Fields */}
-        {!data.product && (
+        {!product && (
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Measurement</label>
@@ -893,7 +905,7 @@ const EditProductModal = ({ editModel, setEditModel, handleSubmit,studentId,orde
           <div className="flex justify-between items-center">
             <label className="block text-sm font-medium">Quantity</label>
             <span className="font-semibold">
-              ₹{(data.quantity || 0) * (data.product?.price || data.price || 0)}
+              ₹{(data.quantity || 0) * (product?.price || data.price || 0)}
             </span>
           </div>
           <input
